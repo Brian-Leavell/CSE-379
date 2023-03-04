@@ -1,3 +1,4 @@
+read_string:
 PUSH {lr}; reads standard input and stores at address beginning at r0
 MOV r1, r0
 

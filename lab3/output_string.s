@@ -1,3 +1,4 @@
+output_string:
 PUSH {lr};prints the null terminated string starting at address in r0 to standard output
 MOV r1, r0; put mem adress in r1 since r0 will be changed
 

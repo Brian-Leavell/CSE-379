@@ -1,3 +1,4 @@
+int2string:
 PUSH {lr};takes int in r0 and address in r1, converts the int to a string and stores at r1
 PUSH {r0}
 MOV r2, r1 ;address to store at is in r2
