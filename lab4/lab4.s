@@ -40,13 +40,18 @@ read_from_push_btn:
     BIC r1, r1, #16
     STRB r1, [r0, #0x400]
     ;set pin 4 to be digital
-	LDRB r1, [r0, #0x51C]
+		LDRB r1, [r0, #0x51C]
     ORR r1, r1, #16
     STRB r1, [r0, #0x51C]
+		;sets the pull up register for PF4
+		LDRB r1, [r0, #0x510]
+		ORR r1, r1, #16
+		STRB r1, [r0, #0x510]
     ;loads the data register for port f and stores the value for pin 4 in r0
     LDRB r1, [r0, #0x3FC]
     UBFX r1, r1, #5, #1
-    MOV r0, r1
+    MVN r0, r1
+		AND r0, r0, #1
 
 
 	POP {lr}
