@@ -11,6 +11,7 @@ prompt2: 	.string "Select an Option Below", 0
 option1: 	.string "1.) RGB LED (SW1 Tiva)", 0
 option2: 	.string "2.) LED + Switches", 0
 option3: 	.string "3.) Keypad", 0
+option4: 	.string "4.) EXIT (Esc)", 0
 num_string: 	.string "    ", 0
 gb: 		.string "Matrix Escaped ", 0
 
@@ -21,6 +22,7 @@ ptr_to_prompt2:			.word prompt2
 ptr_to_option1:			.word option1
 ptr_to_option2:			.word option2
 ptr_to_option3:			.word option3
+ptr_to_option4:			.word option4
 ptr_to_num_string:			.word num_string
 ptr_to_gb:				.word gb
 
@@ -33,8 +35,9 @@ starthere:
 	ldr r6, ptr_to_option1
 	ldr r7, ptr_to_option2
 	ldr r8, ptr_to_option3
+	ldr r10, ptr_to_option4
 	ldr r9, ptr_to_num_string
-	ldr r10, ptr_to_gb
+	ldr r11, ptr_to_gb
 
 	BL serial_init	;Initialize UART
 	
@@ -44,12 +47,14 @@ starthere:
 	MOV r0, r5	
 	BL output_string	;Outputs second prompt
 
-	;Below prints out the options for the users, 1-5
+	;Below prints out the options for the users, 1-4
 	MOV r0, r6
 	BL output_string
 	MOV r0, r7
 	BL output_string
 	MOV r0, r8
+	BL output_string
+	MOV r0, r10
 	BL output_string
 
 	MOV r0, r9	;Stores whatever user enters into memory
