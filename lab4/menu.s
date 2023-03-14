@@ -12,6 +12,7 @@ option1: 	.string "1.) RGB LED (SW1 Tiva)", 0
 option2: 	.string "2.) LED + Switches", 0
 option3: 	.string "3.) Keypad", 0
 num_string: 	.string "    ", 0
+gb: 		.string "Matrix Escaped ", 0
 
 	.text
 
@@ -21,6 +22,7 @@ ptr_to_option1:			.word option1
 ptr_to_option2:			.word option2
 ptr_to_option3:			.word option3
 ptr_to_num_string:			.word num_string
+ptr_to_gb:				.word gb
 
 menu:
 
@@ -32,6 +34,7 @@ starthere:
 	ldr r7, ptr_to_option2
 	ldr r8, ptr_to_option3
 	ldr r9, ptr_to_num_string
+	ldr r10, ptr_to_gb
 
 	BL serial_init	;Initialize UART
 	
@@ -57,12 +60,13 @@ starthere:
 	BEQ rgb_test_go
 	
 	CMP r0, #2
-	BEQ ;LEDs test
+	BEQ ;led_test_go
 
 	CMP r0, #3
-	BEQ ;Keypad test
-
-
+	BEQ keypad_test_go
+	
+	CMP r0, #0x1B	;Check if user typed escape to terminate
+  	BEQ goodbye
 
 	
 rgb_test_go:
@@ -72,12 +76,14 @@ rgb_test_go:
 led_test_go:
 	BL led_test		
 	B starthere
-
 	
-
-
-
-
+keypad_test_go:
+	BL keypad_test
+	B starthere
+	
+goodbye:
+	MOV r0, r11
+	BL output_string	;Goodbye prompt
 
 	POP {lr}
 	MOV pc, lr
