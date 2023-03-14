@@ -230,8 +230,8 @@ BL led_test
 B start_here
 
 keypad_test_go:
-;BL keypad_test
-;B start_here
+BL keypad_test
+B start_here
 
 goodbye:
 MOV r0, r11
@@ -608,7 +608,8 @@ BEQ led_test_exit
 B led_test_loop
 
 led_test_exit:
-
+MOV r0, #0
+BL illuminate_LEDs;turn off LEDs before exiting
 
 POP {lr}
 MOV pc, lr
@@ -617,29 +618,29 @@ read_from_push_btns:
 
 PUSH {lr}
 
-*Loads data register from port D*
+;*Loads data register from port D*
 MOV r0, #0x73FC
 MOVT r0, #0x4000
 
 LDRB r1, [r0]
 MOV r2, #0	;ACC
 
-*Extract bit 0*
+;*Extract bit 0*
 UBFX r1, r1, #0, #1
 LSL r1, r1, #3
 ADD r2, r2, r1
 
-*Extract bit 1*
+;*Extract bit 1*
 UBFX r1, r1, #1, #1
 LSL r1, r1, #2
 ADD r2, r2, r1
 
-*Extract bit 2*
+;*Extract bit 2*
 UBFX r1, r1, #2, #1
 LSL r1, r1, #1
 ADD r2, r2, r1
 
-*Extract bit 3*
+;*Extract bit 3*
 UBFX r1, r1, #3, #1
 ADD r2, r2, r1
 
@@ -705,7 +706,7 @@ STRB r0, [r1, #GPIODATA] 	; Store modifed value of GPIODATA register back to mem
 							;
 POP {pc}					; Return to caller
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
-read_from_keypad:
+read_from_keypad:;polls for an input on the keypad- if an int is pressed, returns the int in r0. If a char is pressed, returns the ASCII char value in r0(subtract 48 from it so when we add 48 to get chars for ints we get chars for chars too)
 PUSH {lr}
 
 round_robin:
@@ -783,19 +784,142 @@ BEQ fourth_row
 
 
 
-first_row:;r0 = 1 - 1, r0 = 2 -2, r0 = 4 - 3, r0 = 8 - A
+first_row:;r0 = 1 - 1, r0 = 2 - 2, r0 = 4 - 3, r0 = 8 - A
+CMP r0, #1
+BEQ equalsone
+CMP r0, #2
+BEQ equalstwo
+CMP r0, #4
+BEQ equalsthree
+CMP r0, #8
+BEQ equalsA
+
+equalsone:
+MOV r0, #1
+B determine_press_end
+
+equalstwo:
+MOV r0, #2
+B determine_press_end
+
+equalsthree:
+MOV r0, #3
+B determine_press_end
+
+equalsA:
+MOV r0, #17
+B determine_press_end
 
 
 second_row:;r0 = 1 - 4, r0 = 2 - 5, r0 = 4 - 6, r0 = 8 - B
+CMP r0, #1
+BEQ equalsfour
+CMP r0, #2
+BEQ equalsfive
+CMP r0, #4
+BEQ equalssix
+CMP r0, #8
+BEQ equalsB
+
+equalsfour:
+MOV r0, #4
+B determine_press_end
+
+equalsfive:
+MOV r0, #5
+B determine_press_end
+
+equalssix:
+MOV r0, #6
+B determine_press_end
+
+equalsB:
+MOV r0, #18
+B determine_press_end
 
 
 third_row:;r0 = 1 - 7, r0 = 2 - 8, r0 = 4 - 9, r0 = 8 - C
+CMP r0, #1
+BEQ equalsseven
+CMP r0, #2
+BEQ equalseight
+CMP r0, #4
+BEQ equalsnine
+CMP r0, #8
+BEQ equalsC
+
+equalsseven:
+MOV r0, #7
+B determine_press_end
+
+equalseight:
+MOV r0, #8
+B determine_press_end
+
+equalsnine:
+MOV r0, #9
+B determine_press_end
+
+equalsC:
+MOV r0, #19
+B determine_press_end
 
 
 fourth_row:;r0 = 1 - *, r0 = 2 - 0, r0 = 4 - #, r0 = 8 - D
+CMP r0, #1
+BEQ equalsast
+CMP r0, #2
+BEQ equalszero
+CMP r0, #4
+BEQ equalshash
+CMP r0, #8
+BEQ equalsD
+
+equalsast:
+MOV r0, #0
+SUB r0, r0, #6
+B determine_press_end
+
+equalszero:
+MOV r0, #0
+B determine_press_end
+
+equalshash:
+MOV r0, #0
+SUB r0, r0, #13
+B determine_press_end
+
+equalsD:
+MOV r0, #20
+B determine_press_end
 
 
+determine_press_end:
 
+POP {lr}
+MOV pc, lr
+
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+keypad_test:
+PUSH {lr}
+PUSH {v1}
+PUSH {v2}
+MOV v1, #8
+MOV v2, #0
+
+keypad_test_loop:
+	ADD v2, v2, #1
+	CMP v2, v1
+	BEQ end_keypad_test
+	BL read_from_keypad
+	ADD r0, r0, #48
+	BL output_character
+	B keypad_test_loop
+
+
+end_keypad_test:
+POP {v2}
+POP {v1}
 POP {lr}
 MOV pc, lr
 
