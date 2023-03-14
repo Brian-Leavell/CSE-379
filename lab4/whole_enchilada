@@ -27,16 +27,15 @@ lab4:
     MOV r0, #0xE608
     MOVT r0, #0x400F
 
-    BL serial_init	;Initialize UART
-
-	BL gpio_btn_and_LEDS_init; Initialize switches
-
-
-
     LDRB r1, [r0]
     ORR r1, r1, #32
 
     STRB r1, [r0]
+
+    BL serial_init	;Initialize UART
+
+	BL gpio_btn_and_LEDS_init; Initialize switches
+
 
     BL menu
 
@@ -53,8 +52,8 @@ next_color:
 	ADD v1, v1, #1
 read_sw1_loop:
 	CMP v1, #8
-	;BEQ theend
-	BEQ restart_rgb_color
+	BEQ theend
+	;BEQ restart_rgb_color
     BL read_from_push_btn
     CMP r0, #1
     BEQ call_rgb_output
@@ -181,9 +180,12 @@ start_here:
 	BL output_string
 	MOV r0, r8
 	BL output_string
+	MOV r0, r10
+	BL output_string
 
 	MOV r0, r9	;Stores whatever user enters into memory
 	BL read_string
+	MOV r0, r9	;read_string destroys r0 so we have to put the address of the stored string back for string2int
 	BL string2int	;Convert string into integer for menu selection option
 
 	CMP r0, #1
