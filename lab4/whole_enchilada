@@ -226,22 +226,22 @@ start_here:
 
 
 rgb_test_go:
-	BL gpio_btn_and_LEDS_init
-	BL rgb_test
+	BL gpio_btn_and_LEDS_init;ensure sw1 and RGB will communicate properly
+	BL rgb_test;call the test for rgbs and sw1
 	B start_here
 
 led_test_go:
-	BL gpio_btn_and_LEDS_init
-	BL led_test
+	BL gpio_btn_and_LEDS_init;ensure buttons and LEDs will communicate properly
+	BL led_test;call the test for the leds and their switches
 	B start_here
 
 keypad_test_go:
-	BL keypad_init
-	BL keypad_test
+	BL keypad_init;ensure keypad buttons will communicate properly
+	BL keypad_test;call the test for the keypad
 	B start_here
 
 goodbye:
-	MOV r0, r11
+	MOV r0, r11;print exit message
 	BL output_string
 	POP {lr}
 	MOV pc, lr
@@ -339,18 +339,18 @@ read_string:
 
 read_stringloop:
   PUSH {r1}
-  BL read_character
-  BL output_character
+  BL read_character;get the character
+  BL output_character;print the character
   POP {r1}
-  CMP r0, #0xA
-  BEQ RSend
-  STRB r0, [r1]
-  ADD r1, r1, #1
+  CMP r0, #0xA;check character for enter
+  BEQ RSend;if enter, store null byte instead
+  STRB r0, [r1];store byte if not enter
+  ADD r1, r1, #1;increment memory store pointer
   B read_stringloop
 
 RSend:
   MOV r0, #0
-  STRB r0, [r1]
+  STRB r0, [r1];store null byte
   POP{lr}
   MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -600,7 +600,7 @@ gpio_btn_and_LEDS_init:
 	ORR r1, r1, #16
 	STRB r1, [r0]
 
-	BL not_a_fork_bomb
+	BL not_a_fork_bomb;give time to make sure everything sets before continuing
 	POP {lr}
 	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -608,9 +608,9 @@ led_test:
 	PUSH {lr}
 led_test_loop:
 
-	BL read_from_push_btns
-	BL illuminate_LEDs
-	CMP r0, #15
+	BL read_from_push_btns;read the current inputs from the leds
+	BL illuminate_LEDs;light up all leds for buttons that are pushed currently
+	CMP r0, #15;check to see if all buttons are pushed, if so, exit test
 	BEQ led_test_exit
 	B led_test_loop
 
@@ -716,7 +716,7 @@ keypad_init:					;
 read_from_keypad:;polls for an input on the keypad- if an int is pressed, returns the int in r0. If a char is pressed, returns the ASCII char value in r0(subtract 48 from it so when we add 48 to get chars for ints we get chars for chars too)
 	PUSH {lr}
 
-round_robin:
+round_robin:;polls for an input detected on the keypad by turning on one row at a time, recording which row is active in r2
 	LDR r1, GPIO_PORT_D
 	LDRB r0, [r1, #GPIODATA];load PD data section
 	MOV r2, #0 ;keep track of which bit is being turned on
@@ -775,7 +775,7 @@ press_check_end:
 	MOV pc, lr
 
 
-determine_press:
+determine_press:;figures out which button was pressed using the row that was active (from r2) and whichever column the press was detected from
 	LDR r1, GPIO_PORT_A
 	LDRB r0, [r1, #GPIODATA]
 	UBFX r0, r0, #2, #4 ; get PA2-5
@@ -911,14 +911,14 @@ determine_press_end:
 	MOV pc, lr
 
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
-keypad_test:
+keypad_test:;prints 7 inputs from the keypad to the screen before exiting
 	PUSH {lr}
 	PUSH {v1}
 	PUSH {v2}
 	MOV v1, #8
 	MOV v2, #0
 
-keypad_test_loop:
+keypad_test_loop:;reads and prints an input from the keypad, and counts how many inputs have been input. Jumps to the end of the test if 7 inputs have been detected.
 	ADD v2, v2, #1
 	CMP v2, v1
 	BEQ end_keypad_test
@@ -928,7 +928,7 @@ keypad_test_loop:
 	B keypad_test_loop
 
 
-end_keypad_test:
+end_keypad_test:;prints a newline and linefeed before exiting the test
 	PUSH{r0}
 	MOV r0, #13
 	BL output_character
