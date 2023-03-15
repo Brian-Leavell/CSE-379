@@ -1,7 +1,7 @@
 	.data
 
 prompt:		.string "Commence Testing :)", 0
-prompt2: 	.string "Select an Option Below", 0
+prompt2: 	.string "Select an Option Below (Type a Number and Press Enter)", 0
 option1: 	.string "1.) RGB LED (SW1 Tiva)", 0
 option2: 	.string "2.) LED + Switches", 0
 option3: 	.string "3.) Keypad", 0
@@ -170,8 +170,16 @@ nomorefork:
 menu:
 
 	PUSH {lr}
-start_here:
+
 	ldr r4, ptr_to_prompt
+
+	MOV r0, r4	;Place first prompt into r0
+	BL output_string	;Output prompt to user
+
+
+
+start_here:
+	;ldr r4, ptr_to_prompt
 	ldr r5, ptr_to_prompt2
 	ldr r6, ptr_to_option1
 	ldr r7, ptr_to_option2
@@ -181,8 +189,8 @@ start_here:
 	ldr r11, ptr_to_gb
 
 
-	MOV r0, r4	;Place first prompt into r0
-	BL output_string	;Output prompt to user
+	;MOV r0, r4	;Place first prompt into r0
+	;BL output_string	;Output prompt to user
 
 	MOV r0, r5
 	BL output_string	;Outputs second prompt
