@@ -1,4 +1,4 @@
-.data
+	.data
 
 prompt:		.string "Commence Testing :)", 0
 prompt2: 	.string "Select an Option Below", 0
@@ -6,18 +6,18 @@ option1: 	.string "1.) RGB LED (SW1 Tiva)", 0
 option2: 	.string "2.) LED + Switches", 0
 option3: 	.string "3.) Keypad", 0
 option4: 	.string "4.) EXIT (Esc)", 0
-num_string: 	.string "    ", 0
+num_string: .string "          ", 0
 gb: 		.string "Matrix Escaped ", 0
 
-.text
-.global lab4
+	.text
+	.global lab4
 ptr_to_prompt:			.word prompt
 ptr_to_prompt2:			.word prompt2
 ptr_to_option1:			.word option1
 ptr_to_option2:			.word option2
 ptr_to_option3:			.word option3
 ptr_to_option4:			.word option4
-ptr_to_num_string:			.word num_string
+ptr_to_num_string:		.word num_string
 ptr_to_gb:				.word gb
 
 *************************************************************************************************
@@ -31,7 +31,7 @@ GPIODATA:		.equ	0x3FC		; Offset for GPIO Data Register
 *************************************************************************************************
 
 lab4:
-PUSH {lr}
+	PUSH {lr}
 
 	;Code below turns on clock for port F
 	MOV r0, #0xE608
@@ -44,9 +44,9 @@ PUSH {lr}
 
 	BL serial_init	;Initialize UART
 
-BL gpio_btn_and_LEDS_init; Initialize switches
+	BL gpio_btn_and_LEDS_init; Initialize switches
 
-BL keypad_init; Initialize keypad
+	BL keypad_init; Initialize keypad
 
 
 	BL menu
@@ -55,17 +55,17 @@ BL keypad_init; Initialize keypad
 	MOV pc, lr
 ;-----------------------------------------------------------------------------------------------------------------------
 rgb_test:
-PUSH {lr}
-PUSH {v1}
+	PUSH {lr}
+	PUSH {v1}
 restart_rgb_color:
-MOV v1, #0
+	MOV v1, #0
 
 next_color:
-ADD v1, v1, #1
+	ADD v1, v1, #1
 read_sw1_loop:
-CMP v1, #9
-BEQ rgb_end
-;BEQ restart_rgb_color
+	CMP v1, #9
+	BEQ rgb_end
+	;BEQ restart_rgb_color
 	BL read_tiva_push_button
 	CMP r0, #1
 	BEQ call_rgb_output
@@ -79,15 +79,15 @@ call_rgb_output:
 	B next_color
 
 rgb_end:
-MOV r0, #0
-BL illuminate_RGB_LED
+	MOV r0, #0
+	BL illuminate_RGB_LED
 
-POP {v1}
-POP {lr}
-MOV pc, lr
+	POP {v1}
+	POP {lr}
+	MOV pc, lr
 ;-----------------------------------------------------------------------------------------------------------------------------
 read_tiva_push_button:
-PUSH {lr}
+	PUSH {lr}
 
 	;loads base address for port f into r0
 	MOV r0, #0x5000
@@ -97,28 +97,28 @@ PUSH {lr}
 	BIC r1, r1, #16
 	STRB r1, [r0, #0x400]
 	;set pin 4 to be digital
-LDRB r1, [r0, #0x51C]
+	LDRB r1, [r0, #0x51C]
 	ORR r1, r1, #16
 	STRB r1, [r0, #0x51C]
-;sets the pull up register for PF4
-LDRB r1, [r0, #0x510]
-ORR r1, r1, #16
-STRB r1, [r0, #0x510]
-BL not_a_fork_bomb
+	;sets the pull up register for PF4
+	LDRB r1, [r0, #0x510]
+	ORR r1, r1, #16
+	STRB r1, [r0, #0x510]
+	BL not_a_fork_bomb
 	;loads the data register for port f and stores the value for pin 4 in r0
 	LDRB r1, [r0, #0x3FC]
 	UBFX r1, r1, #4, #1
 	MVN r0, r1
-AND r0, r0, #1
+	AND r0, r0, #1
 
 
-POP {lr}
-MOV pc, lr
+	POP {lr}
+	MOV pc, lr
 
 ;-------------------------------------------------------------------------------------------------------------------------------------------
 
 illuminate_RGB_LED:
-PUSH {lr}
+	PUSH {lr}
 
 				;
 	MOV r1, #0x5000
@@ -138,778 +138,777 @@ PUSH {lr}
 	STRB r2, [r1, #0x3FC]
 
 
-POP {lr}
-MOV pc, lr
+	POP {lr}
+	MOV pc, lr
 
 ;-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 not_a_fork_bomb:;runs a ton of instructions to give time for the pull up register to actually set. Is actually not a fork bomb just a loop
-PUSH {lr}
-PUSH{r0}
-PUSH{r1}
+	PUSH {lr}
+	PUSH{r0}
+	PUSH{r1}
 
-MOV r0, #0xFFFF
-MOVT r0, #0x0002
-MOV r1, #0
+	MOV r0, #0xFFFF
+	MOVT r0, #0x0002
+	MOV r1, #0
 
 perhaps_a_fork_bomb:
-SUB r0, r0, #1
-CMP r0, r1
-BEQ nomorefork
-B perhaps_a_fork_bomb
+	SUB r0, r0, #1
+	CMP r0, r1
+	BEQ nomorefork
+	B perhaps_a_fork_bomb
 
 nomorefork:
-POP {r1}
-POP {r0}
-POP {lr}
+	POP {r1}
+	POP {r0}
+	POP {lr}
 
-MOV pc, lr
+	MOV pc, lr
 
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 menu:
 
-PUSH {lr}
+	PUSH {lr}
 start_here:
-ldr r4, ptr_to_prompt
-ldr r5, ptr_to_prompt2
-ldr r6, ptr_to_option1
-ldr r7, ptr_to_option2
-ldr r8, ptr_to_option3
-ldr r10, ptr_to_option4
-ldr r9, ptr_to_num_string
-ldr r11, ptr_to_gb
+	ldr r4, ptr_to_prompt
+	ldr r5, ptr_to_prompt2
+	ldr r6, ptr_to_option1
+	ldr r7, ptr_to_option2
+	ldr r8, ptr_to_option3
+	ldr r10, ptr_to_option4
+	ldr r9, ptr_to_num_string
+	ldr r11, ptr_to_gb
 
 
-MOV r0, r4	;Place first prompt into r0
-BL output_string	;Output prompt to user
+	MOV r0, r4	;Place first prompt into r0
+	BL output_string	;Output prompt to user
 
-MOV r0, r5
-BL output_string	;Outputs second prompt
+	MOV r0, r5
+	BL output_string	;Outputs second prompt
 
 ;Below prints out the options for the users, 1-5
-MOV r0, r6
-BL output_string
-MOV r0, r7
-BL output_string
-MOV r0, r8
-BL output_string
-MOV r0, r10
-BL output_string
+	MOV r0, r6
+	BL output_string
+	MOV r0, r7
+	BL output_string
+	MOV r0, r8
+	BL output_string
+	MOV r0, r10
+	BL output_string
 
-MOV r0, r9	;Stores whatever user enters into memory
-BL read_string
-MOV r0, r9	;read_string destroys r0 so we have to put the address of the stored string back for string2int
-BL string2int	;Convert string into integer for menu selection option
+	MOV r0, r9	;Stores whatever user enters into memory
+	BL read_string
+	MOV r0, r9	;read_string destroys r0 so we have to put the address of the stored string back for string2int
+	BL string2int	;Convert string into integer for menu selection option
 
-CMP r0, #1
-BEQ rgb_test_go
+	CMP r0, #1
+	BEQ rgb_test_go
 
-CMP r0, #2
-BEQ led_test_go
+	CMP r0, #2
+	BEQ led_test_go
 
-CMP r0, #3
-BEQ keypad_test_go
+	CMP r0, #3
+	BEQ keypad_test_go
 
-CMP r0, #0x1B
-BEQ goodbye
+	CMP r0, #4
+	BEQ goodbye
 
-
-else:
-
-POP {lr}
-MOV pc, lr
+	B start_here
 
 
 rgb_test_go:
-BL rgb_test
-B start_here
+	BL gpio_btn_and_LEDS_init
+	BL rgb_test
+	B start_here
 
 led_test_go:
-BL led_test
-B start_here
+	BL gpio_btn_and_LEDS_init
+	BL led_test
+	B start_here
 
 keypad_test_go:
-BL keypad_test
-B start_here
+	BL keypad_init
+	BL keypad_test
+	B start_here
 
 goodbye:
-MOV r0, r11
-BL output_string
-POP {lr}
-MOV pc, lr
+	MOV r0, r11
+	BL output_string
+	POP {lr}
+	MOV pc, lr
 
 
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 get_length:
-PUSH {lr}
-MOV r2, #0; initialize accumulator in r2 to 0
-MOV r3, r0; put r0 in r3 so we can modify r0's value without losing r0
-MOV r10, #10
+	PUSH {lr}
+	MOV r2, #0; initialize accumulator in r2 to 0
+	MOV r3, r0; put r0 in r3 so we can modify r0's value without losing r0
+	MOV r10, #10
 
 get_lengthloop:
-ADD r2, r2, #1; increase digit count
-SDIV r3, r3, r10; divide by 10 and round down (trying to get to 0)
-CMP r3, #0; checking to see if 0 is reached
-BGT get_lengthloop; if not at zero, we know there's another digit so divide and accumulate again
-MOV r0, r2
-POP {lr}
-MOV pc, lr
+	ADD r2, r2, #1; increase digit count
+	SDIV r3, r3, r10; divide by 10 and round down (trying to get to 0)
+	CMP r3, #0; checking to see if 0 is reached
+	BGT get_lengthloop; if not at zero, we know there's another digit so divide and accumulate again
+	MOV r0, r2
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 get_nth:;takes int in r0 and index in r1, returns number at that index in r0
-PUSH {lr}
-MOV r4, #10
-MOV r3, r0
-MUL r3, r3, r4; preserve the value for first run of loop2
-ADD r1, r1, #1; preserve the value for first run of loop2
+	PUSH {lr}
+	MOV r4, #10
+	MOV r3, r0
+	MUL r3, r3, r4; preserve the value for first run of loop2
+	ADD r1, r1, #1; preserve the value for first run of loop2
 
 get_nthloop:
-SDIV r3, r3, r4
-SUB r1, r1, #1
-CMP r1, #0
-BGT get_nthloop
+	SDIV r3, r3, r4
+	SUB r1, r1, #1
+	CMP r1, #0
+	BGT get_nthloop
 
-MOV r0, r3
-SDIV r3, r3, r4; divide by 10, round down
-MUL r3, r3, r4; multiply by 10, get back same magnitude but 0 in 1's place
-SUB r1, r0, r3; subtract rounded down number from original number
+	MOV r0, r3
+	SDIV r3, r3, r4; divide by 10, round down
+	MUL r3, r3, r4; multiply by 10, get back same magnitude but 0 in 1's place
+	SUB r1, r0, r3; subtract rounded down number from original number
 
-MOV r0, r1
-POP {lr}
-MOV pc, lr
+	MOV r0, r1
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 int2string:
-PUSH {lr};takes int in r0 and address in r1, converts the int to a string and stores at r1
-PUSH {r0}
-MOV r2, r1 ;address to store at is in r2
-PUSH {r2}
-BL get_length
-POP {r2}
-MOV r1, r0
-SUB r1, r1, #1
+	PUSH {lr};takes int in r0 and address in r1, converts the int to a string and stores at r1
+	PUSH {r0}
+	MOV r2, r1 ;address to store at is in r2
+	PUSH {r2}
+	BL get_length
+	POP {r2}
+	MOV r1, r0
+	SUB r1, r1, #1
 
 I2Sloop:
-POP {r0} ;get original r0 back
-PUSH {r0}
-PUSH {r1} ;preserve original r0, current r1 and r2
-BL get_nth ;gets nth digit specifed in r1 from int in r0, stores in r0
-POP {r1}; get back r1 and r2 that may have been changed in get_nth
-ADD r0, r0, #48; add 48 to get ascii value of digit
-STRB r0, [r2]
-ADD r2, r2, #1
-SUB r1, r1, #1
-CMP r1, #0
-BGE I2Sloop
-MOV r0, #0
-STRB r0, [r2]
+	POP {r0} ;get original r0 back
+	PUSH {r0}
+	PUSH {r1} ;preserve original r0, current r1 and r2
+	BL get_nth ;gets nth digit specifed in r1 from int in r0, stores in r0
+	POP {r1}; get back r1 and r2 that may have been changed in get_nth
+	ADD r0, r0, #48; add 48 to get ascii value of digit
+	STRB r0, [r2]
+	ADD r2, r2, #1
+	SUB r1, r1, #1
+	CMP r1, #0
+	BGE I2Sloop
+	MOV r0, #0
+	STRB r0, [r2]
 
-POP{lr,r0}
-MOV pc, lr
+	POP{lr,r0}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 output_string:
-PUSH {lr};prints the null terminated string starting at address in r0 to standard output
-MOV r1, r0; put mem adress in r1 since r0 will be changed
+	PUSH {lr};prints the null terminated string starting at address in r0 to standard output
+	MOV r1, r0; put mem adress in r1 since r0 will be changed
 
 OSloop:
-LDRB r0, [r1]; get byte at mem pointer
-CMP r0, #0; check to see if null byte hit
-BEQ OSend
-PUSH {r1}
-BL output_character
-POP {r1}
-ADD r1, r1, #1; increment memory pointer to next digit
-B OSloop
+	LDRB r0, [r1]; get byte at mem pointer
+	CMP r0, #0; check to see if null byte hit
+	BEQ OSend
+	PUSH {r1}
+	BL output_character
+	POP {r1}
+	ADD r1, r1, #1; increment memory pointer to next digit
+	B OSloop
 
 OSend:
-MOV r0, #0xD; if null byte, load value for "enter" instead
-BL output_character
-POP {lr}
-MOV pc, lr
+	MOV r0, #0xD; if null byte, load value for "enter" instead
+	BL output_character
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 read_string:
-PUSH {lr}; reads standard input and stores at address beginning at r0
-MOV r1, r0
+  PUSH {lr}; reads standard input and stores at address beginning at r0
+  MOV r1, r0
 
 read_stringloop:
-PUSH {r1}
-BL read_character
-BL output_character
-POP {r1}
-CMP r0, #0xA
-BEQ RSend
-STRB r0, [r1]
-ADD r1, r1, #1
-B read_stringloop
+  PUSH {r1}
+  BL read_character
+  BL output_character
+  POP {r1}
+  CMP r0, #0xA
+  BEQ RSend
+  STRB r0, [r1]
+  ADD r1, r1, #1
+  B read_stringloop
 
 RSend:
-MOV r0, #0
-STRB r0, [r1]
-POP{lr}
-MOV pc, lr
+  MOV r0, #0
+  STRB r0, [r1]
+  POP{lr}
+  MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 read_character:
-PUSH {lr}   ; Store register lr on stack
+	PUSH {lr}   ; Store register lr on stack
 
 	; Your code for your read_character routine is placed here
-MOV r1, #0xC018				;These two lines move the flag data register address from mem into r1
-MOVT r1, #0x4000
+	MOV r1, #0xC018				;These two lines move the flag data register address from mem into r1
+	MOVT r1, #0x4000
 
 rcharloop:
-LDRB r3, [r1]				;Offset to reach TxFF and TxFE
-AND r3, r3, #0x10			;AND Logic to isolate bit stored in TxFE register
+	LDRB r3, [r1]				;Offset to reach TxFF and TxFE
+	AND r3, r3, #0x10			;AND Logic to isolate bit stored in TxFE register
 
-CMP r3, #0					;If 0, flag is set and register is holding a value
-BEQ gotit
-B rcharloop						;Reload and AND again if flag is a 1, meaning register is empty
+	CMP r3, #0					;If 0, flag is set and register is holding a value
+	BEQ gotit
+	B rcharloop						;Reload and AND again if flag is a 1, meaning register is empty
 
 gotit:
-MOV r1, #0xC000				;Load from mem the UART Data Register
-MOVT r1, #0x4000
+	MOV r1, #0xC000				;Load from mem the UART Data Register
+	MOVT r1, #0x4000
 
-LDRB r3, [r1]				;Grab the first byte, "data" section holding the character that was pressed on the keyboard
-MOV r0, r3					;Pass to r0 for output character can use it
+	LDRB r3, [r1]				;Grab the first byte, "data" section holding the character that was pressed on the keyboard
+	MOV r0, r3					;Pass to r0 for output character can use it
 
-POP {lr}
-mov pc, lr
+	POP {lr}
+	mov pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 output_character:
-PUSH {lr}   ; Store register lr on stack
+	PUSH {lr}   ; Store register lr on stack
 
-	; Your code for your output_character routine is placed here
+		; Your code for your output_character routine is placed here
 
-MOV r1, #0xC018; load bottom of flag register address into r1
-MOVT r1, #0x4000; load top of flag register address into r1
-MOV r2, #0xC000; load bottom of data register address into r2
-MOVT r2, #0x4000; load top of data register address into r2
+	MOV r1, #0xC018; load bottom of flag register address into r1
+	MOVT r1, #0x4000; load top of flag register address into r1
+	MOV r2, #0xC000; load bottom of data register address into r2
+	MOVT r2, #0x4000; load top of data register address into r2
 
 mysillylittlelabel:
-LDRB r3, [r1]; load value in flag register into r3
-AND r3, r3, #0x20; mask to get value of TxFF
-CMP r3, #0; see if TxFF is zero yet
-BNE mysillylittlelabel; if TxFF is not zero yet, load and check agaiN
-CMP r0, #0xD
-BEQ fixreturn
-STRB r0, [r2]; if TxFF is zero, store value of r0 in data register
-B afterfixreturn
+	LDRB r3, [r1]; load value in flag register into r3
+	AND r3, r3, #0x20; mask to get value of TxFF
+	CMP r3, #0; see if TxFF is zero yet
+	BNE mysillylittlelabel; if TxFF is not zero yet, load and check agaiN
+	CMP r0, #0xD
+	BEQ fixreturn
+	STRB r0, [r2]; if TxFF is zero, store value of r0 in data register
+	B afterfixreturn
 fixreturn:
-STRB r0, [r2]
-MOV r0, #0xA
-B mysillylittlelabel
+	STRB r0, [r2]
+	MOV r0, #0xA
+	B mysillylittlelabel
 afterfixreturn:
-POP {lr}
-mov pc, lr
+	POP {lr}
+	mov pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 serial_init:
-PUSH {lr}  ; Store register lr on stack
+	PUSH {lr}  ; Store register lr on stack
 
-;Enables clock for UART0
-MOV r0, #0xE618
-MOVT r0, #0x400F
-MOV r1, #1
-STR r1, [r0]
-;Enables clock for PORTA
-MOV r0, #0xE608
-MOVT r0, #0x400F
-MOV r1, #1
-STR r1, [r0]
-;Disables UART0 control
-MOV r0, #0xC030
-MOVT r0, #0x4000
-MOV r1, #0
-STR r1, [r0]
-;Sets the Baud Rate for UART0_IBRD_R to 115,200
-MOV r0, #0xC024
-MOVT r0, #0x4000
-MOV r1, #8
-STR r1, [r0]
-;Sets the Baud Rate for UART0_FBRD_R to 115,200
-MOV r0, #0xC028
-MOVT r0, #0x4000
-MOV r1, #44
-STR r1, [r0]
-;Ensures we are using the system clock
-MOV r0, #0xCFC8
-MOVT r0, #0x4000
-MOV r1, #0
-STR r1, [r0]
-;Sets the word length to 8 bits with 1 stop bit and no parity bits
-MOV r0, #0xC02C
-MOVT r0, #0x4000
-MOV r1, #0x60
-STR r1, [r0]
-;Enables UART0 Control
-MOV r0, #0xC030
-MOVT r0, #0x4000
-MOV r1, #0x301
-STR r1, [r0]
+	;Enables clock for UART0
+	MOV r0, #0xE618
+	MOVT r0, #0x400F
+	MOV r1, #1
+	STR r1, [r0]
+	;Enables clock for PORTA
+	MOV r0, #0xE608
+	MOVT r0, #0x400F
+	MOV r1, #1
+	STR r1, [r0]
+	;Disables UART0 control
+	MOV r0, #0xC030
+	MOVT r0, #0x4000
+	MOV r1, #0
+	STR r1, [r0]
+	;Sets the Baud Rate for UART0_IBRD_R to 115,200
+	MOV r0, #0xC024
+	MOVT r0, #0x4000
+	MOV r1, #8
+	STR r1, [r0]
+	;Sets the Baud Rate for UART0_FBRD_R to 115,200
+	MOV r0, #0xC028
+	MOVT r0, #0x4000
+	MOV r1, #44
+	STR r1, [r0]
+	;Ensures we are using the system clock
+	MOV r0, #0xCFC8
+	MOVT r0, #0x4000
+	MOV r1, #0
+	STR r1, [r0]
+	;Sets the word length to 8 bits with 1 stop bit and no parity bits
+	MOV r0, #0xC02C
+	MOVT r0, #0x4000
+	MOV r1, #0x60
+	STR r1, [r0]
+	;Enables UART0 Control
+	MOV r0, #0xC030
+	MOVT r0, #0x4000
+	MOV r1, #0x301
+	STR r1, [r0]
 
-;Sets PA0 to Digital Port
-MOV r0, #0x451C
-MOVT r0, #0x4000
-LDR r1, [r0]
-ORR r1, r1, #0x03
-STR r1, [r0]
-;Sets PA1 to Digital Port
-MOV r0, #0x4420
-MOVT r0, #0x4000
-LDR r1, [r0]
-ORR r1, r1, #0x03
-STR r1, [r0]
-;Configures PA0 and PA1 for UART0
-MOV r0, #0x452C
-MOVT r0, #0x4000
-LDR r1, [r0]
-ORR r1, r1, #0x11
-STR r1, [r0]
+	;Sets PA0 to Digital Port
+	MOV r0, #0x451C
+	MOVT r0, #0x4000
+	LDR r1, [r0]
+	ORR r1, r1, #0x03
+	STR r1, [r0]
+	;Sets PA1 to Digital Port
+	MOV r0, #0x4420
+	MOVT r0, #0x4000
+	LDR r1, [r0]
+	ORR r1, r1, #0x03
+	STR r1, [r0]
+	;Configures PA0 and PA1 for UART0
+	MOV r0, #0x452C
+	MOVT r0, #0x4000
+	LDR r1, [r0]
+	ORR r1, r1, #0x11
+	STR r1, [r0]
 
-POP {lr}
-mov pc, lr
+	POP {lr}
+	mov pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 string2int:
-PUSH {lr}   ; Store register lr on stack
+	PUSH {lr}   ; Store register lr on stack
 
-MOV r2, #0	;This keeps track of the decimal, ensuring the individual digits get added properly into the correct 10s spot
-MOV r3, #10	;Constant allowing us to multiply by 10 inside of loop
+	MOV r2, #0	;This keeps track of the decimal, ensuring the individual digits get added properly into the correct 10s spot
+	MOV r3, #10	;Constant allowing us to multiply by 10 inside of loop
 
 s2iloop:
-LDRB r1, [r0]	;Loads the first digit from memory
+	LDRB r1, [r0]	;Loads the first digit from memory
 
-CMP r1, #0x00		;Check is value in r1 is ASCII Null, which means it's the end of the number
-BEQ FINISH		;This means the string is over, as a NULL byte indicates the end of the string
+	CMP r1, #0x00		;Check is value in r1 is ASCII Null, which means it's the end of the number
+	BEQ FINISH		;This means the string is over, as a NULL byte indicates the end of the string
 
-MUL r2, r2, r3	;Move decimal to the right 1
-SUB	r1, r1, #48	;Converts ASCII value to its true value
-ADD r2, r2, r1	;Places value into r2 before decimal is moved again
-ADD r0, r0, #0x1 ;Increment pointer to go to next digit in memory
+	MUL r2, r2, r3	;Move decimal to the right 1
+	SUB	r1, r1, #48	;Converts ASCII value to its true value
+	ADD r2, r2, r1	;Places value into r2 before decimal is moved again
+	ADD r0, r0, #0x1 ;Increment pointer to go to next digit in memory
 
-B s2iloop
+	B s2iloop
 
 FINISH:
-MOV r0, r2
+	MOV r0, r2
 
-POP {lr}
-mov pc, lr
+	POP {lr}
+	mov pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 gpio_btn_and_LEDS_init:
 
-PUSH {lr}
+	PUSH {lr}
 
-;*PUSH BUTTONS*
-;*Enable clock for port D*
-MOV r0, #0xE608
-MOVT r0, #0x400F
+	;*PUSH BUTTONS*
+	;*Enable clock for port D*
+	MOV r0, #0xE608
+	MOVT r0, #0x400F
 
-LDR r1, [r0]
-ORR r1, r1, #8
-STR r1, [r0]
+	LDR r1, [r0]
+	ORR r1, r1, #8
+	STR r1, [r0]
 
-;*Set pins D0-D3 to be Input*
-MOV r0, #0x7400
-MOVT r0, #0x4000
+	;*Set pins D0-D3 to be Input*
+	MOV r0, #0x7400
+	MOVT r0, #0x4000
 
-LDRB r1, [r0]
-AND r1, r1, #0xF0
-STRB r1, [r0]
+	LDRB r1, [r0]
+	AND r1, r1, #0xF0
+	STRB r1, [r0]
 
-;*Turn on pullup resistors for D0-D3*
-MOV r0, #0x7510
-MOVT r0, #0x4000
+	;*Turn on pullup resistors for D0-D3*
+	MOV r0, #0x7510
+	MOVT r0, #0x4000
 
-LDRB r1, [r0]
-ORR r1, r1, #15
-STRB r1, [r0]
+	LDRB r1, [r0]
+	ORR r1, r1, #15
+	STRB r1, [r0]
 
-;*Set pins 0-3 to be Digital*
-MOV r0, #0x751C
-MOVT r0, #0x4000
+	;*Set pins 0-3 to be Digital*
+	MOV r0, #0x751C
+	MOVT r0, #0x4000
 
-LDRB r1, [r0]
-ORR r1, r1, #15
-STRB r1, [r0]
+	LDRB r1, [r0]
+	ORR r1, r1, #15
+	STRB r1, [r0]
 
-;*LEDS*
-;*Enable clock for port B*
-MOV r0, #0xE608
-MOVT r0, #0x400F
+	;*LEDS*
+	;*Enable clock for port B*
+	MOV r0, #0xE608
+	MOVT r0, #0x400F
 
-LDR r1, [r0]
-ORR r1, r1, #2
-STR r1, [r0]
+	LDR r1, [r0]
+	ORR r1, r1, #2
+	STR r1, [r0]
 
-;*Set pins B0-B3 to be outputs*
-MOV r0, #0x5400
-MOVT r0, #0x4000
+	;*Set pins B0-B3 to be outputs*
+	MOV r0, #0x5400
+	MOVT r0, #0x4000
 
-LDR r1, [r0]
-ORR r1, r1, #15
-STR r1, [r0]
+	LDR r1, [r0]
+	ORR r1, r1, #15
+	STR r1, [r0]
 
-;*Set pins B0-B3 to be digital*
-MOV r0, #0x551C
-MOVT r0, #0x4000
+	;*Set pins B0-B3 to be digital*
+	MOV r0, #0x551C
+	MOVT r0, #0x4000
 
-LDRB r1, [r0]
-ORR r1, r1, #15
-STRB r1, [r0]
+	LDRB r1, [r0]
+	ORR r1, r1, #15
+	STRB r1, [r0]
 
-;*RGB AND SW1*
-;*Enable clock for port F*
-MOV r0, #0xE608
-MOVT r0, #0x400F
+	;*RGB AND SW1*
+	;*Enable clock for port F*
+	MOV r0, #0xE608
+	MOVT r0, #0x400F
 
-LDR r1, [r0]
-ORR r1, r1, #32
-STR r1, [r0]
+	LDR r1, [r0]
+	ORR r1, r1, #32
+	STR r1, [r0]
 
-;*Set pins F1-F3 to be Outputs*
-MOV r0, #0x5400
-MOVT r0, #0x4002
+	;*Set pins F1-F3 to be Outputs*
+	MOV r0, #0x5400
+	MOVT r0, #0x4002
 
-LDRB r1, [r0]
-ORR r1, r1, #14
-STRB r1, [r0]
+	LDRB r1, [r0]
+	ORR r1, r1, #14
+	STRB r1, [r0]
 
-;*Set pin F4 to be an Input*
-MOV r0, #0x5400
-MOVT r0, #0x4002
+	;*Set pin F4 to be an Input*
+	MOV r0, #0x5400
+	MOVT r0, #0x4002
 
-LDRB r1, [r0]
-AND r1, r1, #0xEF
-STRB r1, [r0]
+	LDRB r1, [r0]
+	AND r1, r1, #0xEF
+	STRB r1, [r0]
 
-;*Set pins F1-F4 to be Digital*
-MOV r0, #0x551C
-MOVT r0, #0x4002
+	;*Set pins F1-F4 to be Digital*
+	MOV r0, #0x551C
+	MOVT r0, #0x4002
 
-LDRB r1, [r0]
-ORR r1, r1, #0x1E
-STRB r1, [r0]
+	LDRB r1, [r0]
+	ORR r1, r1, #0x1E
+	STRB r1, [r0]
 
-;*Turn on pullup resistor for pin F4*
-MOV r0, #0x5510
-MOVT r0, #0x4002
+	;*Turn on pullup resistor for pin F4*
+	MOV r0, #0x5510
+	MOVT r0, #0x4002
 
-LDRB r1, [r0]
-ORR r1, r1, #16
-STRB r1, [r0]
+	LDRB r1, [r0]
+	ORR r1, r1, #16
+	STRB r1, [r0]
 
-BL not_a_fork_bomb
-POP {lr}
-MOV pc, lr
+	BL not_a_fork_bomb
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 led_test:
-PUSH {lr}
+	PUSH {lr}
 led_test_loop:
 
-BL read_from_push_btns
-BL illuminate_LEDs
-CMP r0, #15
-BEQ led_test_exit
-B led_test_loop
+	BL read_from_push_btns
+	BL illuminate_LEDs
+	CMP r0, #15
+	BEQ led_test_exit
+	B led_test_loop
 
 led_test_exit:
-MOV r0, #0
-BL illuminate_LEDs;turn off LEDs before exiting
+	MOV r0, #0
+	BL illuminate_LEDs;turn off LEDs before exiting
 
-POP {lr}
-MOV pc, lr
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 read_from_push_btns:
 
-PUSH {lr}
+	PUSH {lr}
 
-;*Loads data register from port D*
-MOV r0, #0x73FC
-MOVT r0, #0x4000
+	;*Loads data register from port D*
+	MOV r0, #0x73FC
+	MOVT r0, #0x4000
 
-LDRB r1, [r0]
-MOV r2, #0	;ACC
+	LDRB r1, [r0]
+	MOV r2, #0	;ACC
 
-;*Extract bit 0*
-UBFX r1, r1, #0, #1
-LSL r1, r1, #3
-ADD r2, r2, r1
+	;*Extract bit 0*
+	UBFX r1, r1, #0, #1
+	LSL r1, r1, #3
+	ADD r2, r2, r1
 
-;*Extract bit 1*
-UBFX r1, r1, #1, #1
-LSL r1, r1, #2
-ADD r2, r2, r1
+	;*Extract bit 1*
+	UBFX r1, r1, #1, #1
+	LSL r1, r1, #2
+	ADD r2, r2, r1
 
-;*Extract bit 2*
-UBFX r1, r1, #2, #1
-LSL r1, r1, #1
-ADD r2, r2, r1
+	;*Extract bit 2*
+	UBFX r1, r1, #2, #1
+	LSL r1, r1, #1
+	ADD r2, r2, r1
 
-;*Extract bit 3*
-UBFX r1, r1, #3, #1
-ADD r2, r2, r1
+	;*Extract bit 3*
+	UBFX r1, r1, #3, #1
+	ADD r2, r2, r1
 
-MOV r0, r2
+	MOV r0, r2
 
-POP {lr}
-MOV pc, lr
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 illuminate_LEDs:
 
-PUSH {lr}
+	PUSH {lr}
 
-;*Load Port B data register*
-MOV r2, #0x53FC
-MOVT r2, #0x4000
+	;*Load Port B data register*
+	MOV r2, #0x53FC
+	MOVT r2, #0x4000
 
-;*Insert data passed into r0 into LEDs data register*
-LDRB r1, [r2]
-BFI r1, r0, #0, #4
+	;*Insert data passed into r0 into LEDs data register*
+	LDRB r1, [r2]
+	BFI r1, r0, #0, #4
 
-STRB r1, [r2]
+	STRB r1, [r2]
 
-POP {lr}
-MOV pc, lr
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 keypad_init:					;
-PUSH {lr}					;
-* Enable the clock for GPIO Port A and Port D
-LDR r1, SYSCTL				; Load base address of System Control
-LDRB r0, [r1,#RCGCGPIO]		; Load contents of RCGCGPIO register
-ORR r0, r0, #0x9			; Set bit 3 to enalbe and provide a clock to GPIO Port A & Port D
-STRB r0, [r1,#RCGCGPIO]		; Store modifed value of RCGCGPIO register back to memory
-							;
-* Set GPIO Port D, Pints 0-3 direction to Output
-LDR r1, GPIO_PORT_D			; Load base address of GPIO Port D
-LDRB r0, [r1, #GPIODIR] 	; Load contents of GPIODIR register
-ORR r0, r0, #0xF			; Set bits 0-3 to set GPIO direction to Output
-STRB r0, [r1, #GPIODIR] 	; Store modifed value of GPIODIR register back to memory
-							;
-* Set GPIO Port A, Pints 2-5 direction to Input
-LDR r1, GPIO_PORT_A			; Load base address of GPIO Port A
-LDRB r0, [r1, #GPIODIR] 	; Load contents of GPIODIR register
-BIC r0, r0, #0x3C			; Clear bits 2-5 to set GPIO direction to input
-STRB r0, [r1, #GPIODIR] 	; Store modifed value of GPIODIR register back to memory
-							;
-* Enable GPIO Port D, Pins 0-3 as Digital
-LDR r1, GPIO_PORT_D			; Load base address of GPIO Port D
-LDRB r0, [r1, #GPIODEN] 	; Load contents of GPIODEN register
-ORR r0, r0, #0xF			; Set bits 0-3 to set pins to digital
-STRB r0, [r1, #GPIODEN] 	; Store modifed value of GPIODEN register back to memory
-							;
-* Enable GPIO Port A, Pins 2-5 as Digital
-LDR r1, GPIO_PORT_A			; Load base address of GPIO Port A
-LDRB r0, [r1, #GPIODEN] 	; Load contents of GPIODEN register
-ORR r0, r0, #0x3C			; Set bits 2-5 to set pins to digital
-STRB r0, [r1, #GPIODEN] 	; Store modifed value of GPIODEN register back to memory
-							;
-* Enable GPIO Port D, Pins 0-3  ;
-LDR r1, GPIO_PORT_D			; Load base address of GPIO Port D
-LDRB r0, [r1, #GPIODATA] 	; Load contents of GPIODATA register
-ORR r0, r0, #0xF			; Set bits 0-3 to set pins to digital
-STRB r0, [r1, #GPIODATA] 	; Store modifed value of GPIODATA register back to memory
-							;
-POP {pc}					; Return to caller
+	PUSH {lr}					;
+	;* Enable the clock for GPIO Port A and Port D
+	LDR r1, SYSCTL				; Load base address of System Control
+	LDRB r0, [r1,#RCGCGPIO]		; Load contents of RCGCGPIO register
+	ORR r0, r0, #0x9			; Set bit 3 to enalbe and provide a clock to GPIO Port A & Port D
+	STRB r0, [r1,#RCGCGPIO]		; Store modifed value of RCGCGPIO register back to memory
+								;
+	;* Set GPIO Port D, Pints 0-3 direction to Output
+	LDR r1, GPIO_PORT_D			; Load base address of GPIO Port D
+	LDRB r0, [r1, #GPIODIR] 	; Load contents of GPIODIR register
+	ORR r0, r0, #0xF			; Set bits 0-3 to set GPIO direction to Output
+	STRB r0, [r1, #GPIODIR] 	; Store modifed value of GPIODIR register back to memory
+								;
+	;* Set GPIO Port A, Pints 2-5 direction to Input
+	LDR r1, GPIO_PORT_A			; Load base address of GPIO Port A
+	LDRB r0, [r1, #GPIODIR] 	; Load contents of GPIODIR register
+	BIC r0, r0, #0x3C			; Clear bits 2-5 to set GPIO direction to input
+	STRB r0, [r1, #GPIODIR] 	; Store modifed value of GPIODIR register back to memory
+								;
+	;* Enable GPIO Port D, Pins 0-3 as Digital
+	LDR r1, GPIO_PORT_D			; Load base address of GPIO Port D
+	LDRB r0, [r1, #GPIODEN] 	; Load contents of GPIODEN register
+	ORR r0, r0, #0xF			; Set bits 0-3 to set pins to digital
+	STRB r0, [r1, #GPIODEN] 	; Store modifed value of GPIODEN register back to memory
+								;
+	;* Enable GPIO Port A, Pins 2-5 as Digital
+	LDR r1, GPIO_PORT_A			; Load base address of GPIO Port A
+	LDRB r0, [r1, #GPIODEN] 	; Load contents of GPIODEN register
+	ORR r0, r0, #0x3C			; Set bits 2-5 to set pins to digital
+	STRB r0, [r1, #GPIODEN] 	; Store modifed value of GPIODEN register back to memory
+								;
+	;* Enable GPIO Port D, Pins 0-3  ;
+	LDR r1, GPIO_PORT_D			; Load base address of GPIO Port D
+	LDRB r0, [r1, #GPIODATA] 	; Load contents of GPIODATA register
+	ORR r0, r0, #0xF			; Set bits 0-3 to set pins to digital
+	STRB r0, [r1, #GPIODATA] 	; Store modifed value of GPIODATA register back to memory
+								;
+	POP {pc}					; Return to caller
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 read_from_keypad:;polls for an input on the keypad- if an int is pressed, returns the int in r0. If a char is pressed, returns the ASCII char value in r0(subtract 48 from it so when we add 48 to get chars for ints we get chars for chars too)
-PUSH {lr}
+	PUSH {lr}
 
 round_robin:
-LDR r1, GPIO_PORT_D
-LDRB r0, [r1, #GPIODATA];load PD data section
-MOV r2, #0 ;keep track of which bit is being turned on
-BIC r0, r0, #15;set bits 0-3 to 0
+	LDR r1, GPIO_PORT_D
+	LDRB r0, [r1, #GPIODATA];load PD data section
+	MOV r2, #0 ;keep track of which bit is being turned on
+	BIC r0, r0, #15;set bits 0-3 to 0
 
-ADD r0, r0, #1; store 0001
-STRB r0, [r1, #GPIODATA]
-BL not_a_fork_bomb;give it time to rise
-BL check_for_press
-CMP r3, #1
-BEQ determine_press
+	ADD r0, r0, #1; store 0001
+	STRB r0, [r1, #GPIODATA]
+	BL not_a_fork_bomb;give it time to rise
+	BL check_for_press
+	CMP r3, #1
+	BEQ determine_press
 
-ADD r2, r2, #1
-ADD r0, r0, #1; store 0010
-STRB r0, [r1, #GPIODATA]
-BL not_a_fork_bomb;give it time to rise
-BL check_for_press
-CMP r3, #1
-BEQ determine_press
+	ADD r2, r2, #1
+	ADD r0, r0, #1; store 0010
+	STRB r0, [r1, #GPIODATA]
+	BL not_a_fork_bomb;give it time to rise
+	BL check_for_press
+	CMP r3, #1
+	BEQ determine_press
 
-ADD r2, r2, #1
-ADD r0, r0, #2; store 0100
-STRB r0, [r1, #GPIODATA]
-BL not_a_fork_bomb;give it time to rise
-BL check_for_press
-CMP r3, #1
-BEQ determine_press
+	ADD r2, r2, #1
+	ADD r0, r0, #2; store 0100
+	STRB r0, [r1, #GPIODATA]
+	BL not_a_fork_bomb;give it time to rise
+	BL check_for_press
+	CMP r3, #1
+	BEQ determine_press
 
-ADD r2, r2, #1
-ADD r0, r0, #4; store 1000
-STRB r0, [r1, #GPIODATA]
-BL not_a_fork_bomb;give it time to rise
-BL check_for_press
-CMP r3, #1
-BEQ determine_press
+	ADD r2, r2, #1
+	ADD r0, r0, #4; store 1000
+	STRB r0, [r1, #GPIODATA]
+	BL not_a_fork_bomb;give it time to rise
+	BL check_for_press
+	CMP r3, #1
+	BEQ determine_press
 
-B round_robin
+	B round_robin
 
 
 
 check_for_press:
-PUSH {lr}
+	PUSH {lr}
 
-LDR r1, GPIO_PORT_A
-LDRB r0, [r1, #GPIODATA]
-UBFX r0, r0, #2, #4 ; get PA2-5
-CMP r0, #0
-BNE press_found
-MOV r3, #0; store 0 in r3 if press not found
-B press_check_end
+	LDR r1, GPIO_PORT_A
+	LDRB r0, [r1, #GPIODATA]
+	UBFX r0, r0, #2, #4 ; get PA2-5
+	CMP r0, #0
+	BNE press_found
+	MOV r3, #0; store 0 in r3 if press not found
+	B press_check_end
 
 press_found:
-MOV r3, #1; store 1 in r3 if press found
+	MOV r3, #1; store 1 in r3 if press found
 press_check_end:
-POP {lr}
-MOV pc, lr
+	POP {lr}
+	MOV pc, lr
 
 
 determine_press:
-LDR r1, GPIO_PORT_A
-LDRB r0, [r1, #GPIODATA]
-UBFX r0, r0, #2, #4 ; get PA2-5
+	LDR r1, GPIO_PORT_A
+	LDRB r0, [r1, #GPIODATA]
+	UBFX r0, r0, #2, #4 ; get PA2-5
 
 
-CMP r2, #0
-BEQ first_row
+	CMP r2, #0
+	BEQ first_row
 
-CMP r2, #1
-BEQ second_row
+	CMP r2, #1
+	BEQ second_row
 
-CMP r2, #2
-BEQ third_row
+	CMP r2, #2
+	BEQ third_row
 
-CMP r2, #3
-BEQ fourth_row
+	CMP r2, #3
+	BEQ fourth_row
 
 
 
 first_row:;r0 = 1 - 1, r0 = 2 - 2, r0 = 4 - 3, r0 = 8 - A
-CMP r0, #1
-BEQ equalsone
-CMP r0, #2
-BEQ equalstwo
-CMP r0, #4
-BEQ equalsthree
-CMP r0, #8
-BEQ equalsA
+	CMP r0, #1
+	BEQ equalsone
+	CMP r0, #2
+	BEQ equalstwo
+	CMP r0, #4
+	BEQ equalsthree
+	CMP r0, #8
+	BEQ equalsA
 
 equalsone:
-MOV r0, #1
-B determine_press_end
+	MOV r0, #1
+	B determine_press_end
 
 equalstwo:
-MOV r0, #2
-B determine_press_end
+	MOV r0, #2
+	B determine_press_end
 
 equalsthree:
-MOV r0, #3
-B determine_press_end
+	MOV r0, #3
+	B determine_press_end
 
 equalsA:
-MOV r0, #17
-B determine_press_end
+	MOV r0, #17
+	B determine_press_end
 
 
 second_row:;r0 = 1 - 4, r0 = 2 - 5, r0 = 4 - 6, r0 = 8 - B
-CMP r0, #1
-BEQ equalsfour
-CMP r0, #2
-BEQ equalsfive
-CMP r0, #4
-BEQ equalssix
-CMP r0, #8
-BEQ equalsB
+	CMP r0, #1
+	BEQ equalsfour
+	CMP r0, #2
+	BEQ equalsfive
+	CMP r0, #4
+	BEQ equalssix
+	CMP r0, #8
+	BEQ equalsB
 
 equalsfour:
-MOV r0, #4
-B determine_press_end
+	MOV r0, #4
+	B determine_press_end
 
 equalsfive:
-MOV r0, #5
-B determine_press_end
+	MOV r0, #5
+	B determine_press_end
 
 equalssix:
-MOV r0, #6
-B determine_press_end
+	MOV r0, #6
+	B determine_press_end
 
 equalsB:
-MOV r0, #18
-B determine_press_end
+	MOV r0, #18
+	B determine_press_end
 
 
 third_row:;r0 = 1 - 7, r0 = 2 - 8, r0 = 4 - 9, r0 = 8 - C
-CMP r0, #1
-BEQ equalsseven
-CMP r0, #2
-BEQ equalseight
-CMP r0, #4
-BEQ equalsnine
-CMP r0, #8
-BEQ equalsC
+	CMP r0, #1
+	BEQ equalsseven
+	CMP r0, #2
+	BEQ equalseight
+	CMP r0, #4
+	BEQ equalsnine
+	CMP r0, #8
+	BEQ equalsC
 
 equalsseven:
-MOV r0, #7
-B determine_press_end
+	MOV r0, #7
+	B determine_press_end
 
 equalseight:
-MOV r0, #8
-B determine_press_end
+	MOV r0, #8
+	B determine_press_end
 
 equalsnine:
-MOV r0, #9
-B determine_press_end
+	MOV r0, #9
+	B determine_press_end
 
 equalsC:
-MOV r0, #19
-B determine_press_end
+	MOV r0, #19
+	B determine_press_end
 
 
 fourth_row:;r0 = 1 - *, r0 = 2 - 0, r0 = 4 - #, r0 = 8 - D
-CMP r0, #1
-BEQ equalsast
-CMP r0, #2
-BEQ equalszero
-CMP r0, #4
-BEQ equalshash
-CMP r0, #8
-BEQ equalsD
+	CMP r0, #1
+	BEQ equalsast
+	CMP r0, #2
+	BEQ equalszero
+	CMP r0, #4
+	BEQ equalshash
+	CMP r0, #8
+	BEQ equalsD
 
 equalsast:
-MOV r0, #0
-SUB r0, r0, #6
-B determine_press_end
+	MOV r0, #0
+	SUB r0, r0, #6
+	B determine_press_end
 
 equalszero:
-MOV r0, #0
-B determine_press_end
+	MOV r0, #0
+	B determine_press_end
 
 equalshash:
-MOV r0, #0
-SUB r0, r0, #13
-B determine_press_end
+	MOV r0, #0
+	SUB r0, r0, #13
+	B determine_press_end
 
 equalsD:
-MOV r0, #20
-B determine_press_end
+	MOV r0, #20
+	B determine_press_end
 
 
 determine_press_end:
 
-POP {lr}
-MOV pc, lr
+	POP {lr}
+	MOV pc, lr
 
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 keypad_test:
-PUSH {lr}
-PUSH {v1}
-PUSH {v2}
-MOV v1, #8
-MOV v2, #0
+	PUSH {lr}
+	PUSH {v1}
+	PUSH {v2}
+	MOV v1, #8
+	MOV v2, #0
 
 keypad_test_loop:
 	ADD v2, v2, #1
@@ -922,10 +921,16 @@ keypad_test_loop:
 
 
 end_keypad_test:
-POP {v2}
-POP {v1}
-POP {lr}
-MOV pc, lr
+	PUSH{r0}
+	MOV r0, #13
+	BL output_character
+	MOV r0, #10
+	BL output_character
+	POP {r0}
+	POP {v2}
+	POP {v1}
+	POP {lr}
+	MOV pc, lr
 
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
