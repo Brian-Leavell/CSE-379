@@ -3,12 +3,17 @@
 	.global prompt
 	.global mydata
 
-prompt:	.string "Your prompt with instructions is place here", 0
-mydata:	.byte	0x20	; This is where you can store data.
-			; The .byte assembler directive stores a byte
-			; (initialized to 0x20) at the label mydata.
-			; Halfwords & Words can be stored using the
-			; directives .half & .word
+prompt:	.string "Press a key or SW1 on the Tiva Board, press q to quit :)", 0
+
+UARTcount:		.byte	0x00
+Switchcount: 	.byte 	0x00
+UARTGraph:		.string "                                                                    ", 0
+SwitchGraph:	.string "                                                                    ", 0
+UARTgraphprompt:	.string "Key Presses| ", 0
+Switchgraphprompt:	.string "SW1 Presses| ", 0
+keyboard:		.string "Key Presses: ", 0
+tiva:			.string "SW1 Presses: ", 0
+
 
 	.text
 
@@ -25,7 +30,11 @@ mydata:	.byte	0x20	; This is where you can store data.
 	.global lab5
 
 ptr_to_prompt:		.word prompt
-ptr_to_mydata:		.word mydata
+ptr_to_UARTcount:	.word UARTcount
+ptr_to_Switchcount:	.word Switchcount
+ptr_to_UARTGraph:	.word UARTGraph
+ptr_to_SwitchGraph:	.word SwitchGraph
+
 
 lab5:	; This is your main routine which is called from your C wrapper
 	PUSH {lr}   		; Store lr to stack
@@ -45,10 +54,29 @@ lab5:	; This is your main routine which is called from your C wrapper
 
 
 uart_interrupt_init:
+	;Loads UARTIM address
+	MOV r0, #0xC000
+	MOVT r0, #0x4000
 
-	;
+	;Sets RIXM for UART
+	LDR r1, [r0, #0x038]
+	ORR r1, r1, #0x10
+	STR r1, [r0, #0x038]
 
-	; Your code to initialize the UART0 interrupt goes here
+	;Clear UART Interrupt
+	LDRB r1, [r0, #0x044]
+	ORR r1, r1, #0x10
+	STRB r1, [r0, #0x044]
+
+	;Configures processor to allow UART to interrupt processor
+	;Load Interrupt Set Enable Register
+	MOV r0, #0xE000
+	MOVT r0, #0xE000
+
+	LDRB r1, [r0, #0x100]
+	ORR r1, r1, #0x20
+	STRB r1, [r0, #0x100]
+
 
 	MOV pc, lr
 
@@ -128,6 +156,25 @@ UART0_Handler:
 	; Your code for your UART handler goes here.
 	; Remember to preserver registers r4-r11 by pushing then popping
 	; them to & from the stack at the beginning & end of the handler
+	PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+	PUSH {r0}
+	PUSH {r1}
+
+	;clear the flag here pls thx
+
+	ldr r0, ptr_to_UARTcount	;loads pointer to count data
+	LDRB r1, [r0]				;loads byte with count
+	ADD r1, r1, #1 	; increase the count of keyboar presses
+
+	STRB r1, [r0]	;store new count value in memory
+
+	ldr r0, ptr_to_UARTgraph ;memory address where we want to store the x's
+	BL updart
+	BL refresh	;jared from subway comes to clear the screen and update it
+
+	POP {r1}
+	POP {r0}
+	POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 
 	BX lr       	; Return
 
@@ -137,7 +184,11 @@ Switch_Handler:
 	; Your code for your UART handler goes here.
 	; Remember to preserver registers r4-r11 by pushing then popping
 	; them to & from the stack at the beginning & end of the handler
+	PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 
+
+
+	POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 	BX lr       	; Return
 
 
@@ -150,10 +201,25 @@ Timer_Handler:
 	; Lab #6.  Instead, you can use the same startup code as for Lab #5.
 	; Remember to preserver registers r4-r11 by pushing then popping
 	; them to & from the stack at the beginning & end of the handler.
+	PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+
+
+
+	POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 
 	BX lr       	; Return
+;------------------------------------------------------------------------------------------------------------------------------------------
+refresh:
+	PUSH {lr}
 
 
+
+
+
+	POP {lr}
+	MOV pc, lr
+
+;------------------------------------------------------------------------------------------------------------------------------------------
 simple_read_character:
 
 	PUSH {lr}   ; Store register lr on stack
@@ -167,7 +233,37 @@ simple_read_character:
 	POP {lr}
 	MOV PC,LR      	; Return
 
+;------------------------------------------------------------------------------------------------------------------------------------------
+updart:; takes a memeory address in r0 and a number of x's to put there in r1
+	PUSH {lr}
+	PUSH {r0}
+	PUSH {r1}
+	PUSH {r2}
 
+	MOV r2, #120;Save ASCII value for "x" in r2
+
+updartloop:
+	BEQ r1, #0, updartend; exit once nummber of x's desired added to string
+	STRB r2, [r0]		;store x in memory
+	SUB r1, r1, #1		;decrement counter
+	ADD r0, r0, #1		;increment memory address
+	B updartloop
+
+updartend:
+	MOV r2, #0		;store null byte in memory
+	STRB r2, [r0]
+
+	POP {r2}
+	POP {r1}
+	POP {r0}
+	POP {lr}
+	MOV pc, lr
+
+
+
+
+
+;------------------------------------------------------------------------------------------------------------------------------------------
 output_character:
 
 	PUSH {lr}   ; Store register lr on stack
@@ -196,15 +292,7 @@ afterfixreturn:
 	POP {lr}
 	MOV pc, lr
 
-
-read_string:
-
-
-
-
-	MOV PC,LR      	; Return
-
-
+;------------------------------------------------------------------------------------------------------------------------------------------
 output_string:
 
 	PUSH {lr};prints the null terminated string starting at address in r0 to standard output
