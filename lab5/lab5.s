@@ -14,6 +14,8 @@ Switchgraphprompt:	.string "SW1 Presses| ", 0
 keyboard:		.string "Key Presses: ", 0
 tiva:			.string "SW1 Presses: ", 0
 mydata: .byte 0x20
+UARTcountstring: .string "   ", 0
+Switchcountstring: .string "   ", 0
 
 
 	.text
@@ -40,6 +42,8 @@ ptr_to_UARTgraphprompt: .word UARTgraphprompt
 ptr_to_Switchgraphprompt: .word Switchgraphprompt
 ptr_to_keyboard: .word keyboard
 ptr_to_tiva: .word tiva
+ptr_to_UARTcountstring: .word UARTcountstring
+ptr_to_Switchcountstring: .word Switchcountstring
 
 
 lab5:	; This is your main routine which is called from your C wrapper
@@ -183,6 +187,8 @@ UART0_Handler:
 	;PUSH {r0}
 	;PUSH {r1}
 
+	;BL not_a_fork_bomb
+
 
 	;clear the interrupt flag
 	MOV r0, #0xC000
@@ -223,6 +229,8 @@ Switch_Handler:
 	PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 	PUSH {r0}
 	PUSH {r1}
+
+	;BL not_a_fork_bomb
 
 	;clear the flag here pls thx
 	MOV r0, #0x5000			;Load port F address
@@ -284,8 +292,12 @@ refresh:
 	BL output_string;print keyboard count prompt
 	ldr r0, ptr_to_UARTcount
 	LDRB r0, [r0]
-	ADD r0, r0, #48
-	BL output_character;print keyboard count
+	ldr r1, ptr_to_UARTcountstring
+	BL int2string
+	ldr r0, ptr_to_UARTcountstring
+	BL output_string
+	;ADD r0, r0, #48
+	;BL output_character;print keyboard count
 	MOV r0, #0xD
 	BL output_character;print newline and linefeed
 
@@ -293,8 +305,12 @@ refresh:
 	BL output_string;print SW1 count prompt
 	ldr r0, ptr_to_Switchcount
 	LDRB r0, [r0]
-	ADD r0, r0, #48
-	BL output_character;print SW1 count
+	ldr r1, ptr_to_Switchcountstring
+	BL int2string
+	ldr r0, ptr_to_Switchcountstring
+	BL output_string
+	;ADD r0, r0, #48
+	;BL output_character;print SW1 count
 	MOV r0, #0xD
 	BL output_character;print newline and linefeed
 
@@ -563,6 +579,72 @@ tiva_init:
 	POP {lr}
 
 	MOV pc,lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+int2string:
+	PUSH {lr};takes int in r0 and address in r1, converts the int to a string and stores at r1
+	PUSH {r0}
+	MOV r2, r1 ;address to store at is in r2
+	PUSH {r2}
+	BL get_length
+	POP {r2}
+	MOV r1, r0
+	SUB r1, r1, #1
+
+I2Sloop:
+	POP {r0} ;get original r0 back
+	PUSH {r0}
+	PUSH {r1} ;preserve original r0, current r1 and r2
+	BL get_nth ;gets nth digit specifed in r1 from int in r0, stores in r0
+	POP {r1}; get back r1 and r2 that may have been changed in get_nth
+	ADD r0, r0, #48; add 48 to get ascii value of digit
+	STRB r0, [r2]
+	ADD r2, r2, #1
+	SUB r1, r1, #1
+	CMP r1, #0
+	BGE I2Sloop
+	MOV r0, #0
+	STRB r0, [r2]
+
+	POP{lr,r0}
+	MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+get_nth:;takes int in r0 and index in r1, returns number at that index in r0
+	PUSH {lr}
+	MOV r4, #10
+	MOV r3, r0
+	MUL r3, r3, r4; preserve the value for first run of loop2
+	ADD r1, r1, #1; preserve the value for first run of loop2
+
+get_nthloop:
+	SDIV r3, r3, r4
+	SUB r1, r1, #1
+	CMP r1, #0
+	BGT get_nthloop
+
+	MOV r0, r3
+	SDIV r3, r3, r4; divide by 10, round down
+	MUL r3, r3, r4; multiply by 10, get back same magnitude but 0 in 1's place
+	SUB r1, r0, r3; subtract rounded down number from original number
+
+	MOV r0, r1
+	POP {lr}
+	MOV pc, lr
+
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+get_length:
+	PUSH {lr}
+	MOV r2, #0; initialize accumulator in r2 to 0
+	MOV r3, r0; put r0 in r3 so we can modify r0's value without losing r0
+	MOV r10, #10
+
+get_lengthloop:
+	ADD r2, r2, #1; increase digit count
+	SDIV r3, r3, r10; divide by 10 and round down (trying to get to 0)
+	CMP r3, #0; checking to see if 0 is reached
+	BGT get_lengthloop; if not at zero, we know there's another digit so divide and accumulate again
+	MOV r0, r2
+	POP {lr}
+	MOV pc, lr
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
