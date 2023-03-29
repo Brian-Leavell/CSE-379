@@ -13,6 +13,7 @@ UARTgraphprompt:	.string "Key Presses| ", 0
 Switchgraphprompt:	.string "SW1 Presses| ", 0
 keyboard:		.string "Key Presses: ", 0
 tiva:			.string "SW1 Presses: ", 0
+mydata: .byte 0x20
 
 
 	.text
@@ -34,23 +35,42 @@ ptr_to_UARTcount:	.word UARTcount
 ptr_to_Switchcount:	.word Switchcount
 ptr_to_UARTGraph:	.word UARTGraph
 ptr_to_SwitchGraph:	.word SwitchGraph
+ptr_to_mydata: .word mydata
+ptr_to_UARTgraphprompt: .word UARTgraphprompt
+ptr_to_Switchgraphprompt: .word Switchgraphprompt
+ptr_to_keyboard: .word keyboard
+ptr_to_tiva: .word tiva
 
 
 lab5:	; This is your main routine which is called from your C wrapper
 	PUSH {lr}   		; Store lr to stack
-	ldr r4, ptr_to_prompt
-	ldr r5, ptr_to_mydata
 
-        bl uart_init
+	bl uart_init
+	;bl uart_interrupt_init
 	bl uart_interrupt_init
-	bl uart_interrupt_init
+	;BL tiva_init
+	BL gpio_interrupt_init
+	;BL gpio_interrupt_init
+	;bl uart_interrupt_init
+	MOV r0, #0xC
+	BL output_character
+	ldr r0, ptr_to_prompt
+	BL output_string
+
 
 	; This is where you should implement a loop, waiting for the user to
 	; enter a q, indicating they want to end the program.
+lab5loop:
+	BL simple_read_character; if UART does not destroy vlaue in data section after printing a character, this can cause a bug if the last printed charcter was a 'q'
+	CMP r0, #113; check to see if readchar found a 'q'
+	BNE lab5loop; if not, check again
+
+	;add exit message here if desired
 
 	POP {lr}		; Restore lr from the stack
 	MOV pc, lr
 
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 uart_interrupt_init:
@@ -79,6 +99,7 @@ uart_interrupt_init:
 
 
 	MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 gpio_interrupt_init:
@@ -146,12 +167,55 @@ gpio_interrupt_init:
 	ORR r1, r1, #0x40
 	STRB r1, [r0, #3]
 
-	BL not_a_fork_bomb ;give time to make sure everything sets before continuing
+
+	;BL not_a_fork_bomb ;give time to make sure everything sets before continuing
 
 	MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 UART0_Handler:
+
+	; Your code for your UART handler goes here.
+	; Remember to preserver registers r4-r11 by pushing then popping
+	; them to & from the stack at the beginning & end of the handler
+	PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+	;PUSH {r0}
+	;PUSH {r1}
+
+
+	;clear the interrupt flag
+	MOV r0, #0xC000
+	MOVT r0, #0x4000
+	LDRB r1, [r0, #0x044]
+	ORR r1, r1, #0x10
+	STRB r1, [r0, #0x044]
+
+
+
+	ldr r0, ptr_to_UARTcount	;loads pointer to count data
+	LDRB r1, [r0]				;loads byte with count
+	ADD r1, r1, #1 	; increase the count of keyboar presses
+
+	STRB r1, [r0]	;store new count value in memory
+
+	ldr r0, ptr_to_UARTGraph ;memory address where we want to store the x's
+	BL updart
+	BL refresh	;jared from subway comes to clear the screen and update it
+
+	;POP {r1}
+	;POP {r0}
+
+	;BL simple_read_character
+	;This does not work, it would seem that the value in r0 is destroyed after exiting an interrupt handler. Instead, the read character is currently run in the main, which could introduce a bug but seems to work for now
+
+	POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+
+	BX lr       	; Return
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Switch_Handler:
 
 	; Your code for your UART handler goes here.
 	; Remember to preserver registers r4-r11 by pushing then popping
@@ -161,36 +225,32 @@ UART0_Handler:
 	PUSH {r1}
 
 	;clear the flag here pls thx
+	MOV r0, #0x5000			;Load port F address
+    MOVT r0, #0x4002
+    ;Clear intterupt flag for SW1 Tiva to allow a different interrupt to activate if needed
+	LDRB r1, [r0,#0x41C]
+	ORR r1, #0x10
+	STRB r1, [r0, #0x41C]
 
-	ldr r0, ptr_to_UARTcount	;loads pointer to count data
+	ldr r0, ptr_to_Switchcount	;loads pointer to count data
 	LDRB r1, [r0]				;loads byte with count
 	ADD r1, r1, #1 	; increase the count of keyboar presses
 
 	STRB r1, [r0]	;store new count value in memory
 
-	ldr r0, ptr_to_UARTgraph ;memory address where we want to store the x's
+	ldr r0, ptr_to_SwitchGraph ;memory address where we want to store the x's
 	BL updart
 	BL refresh	;jared from subway comes to clear the screen and update it
 
 	POP {r1}
 	POP {r0}
-	POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
-
-	BX lr       	; Return
-
-
-Switch_Handler:
-
-	; Your code for your UART handler goes here.
-	; Remember to preserver registers r4-r11 by pushing then popping
-	; them to & from the stack at the beginning & end of the handler
-	PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 
 
 
 	POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 	BX lr       	; Return
 
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Timer_Handler:
 
@@ -211,6 +271,48 @@ Timer_Handler:
 ;------------------------------------------------------------------------------------------------------------------------------------------
 refresh:
 	PUSH {lr}
+
+	MOV r0, #0xC;clear the screen
+	BL output_character
+
+	ldr r0, ptr_to_prompt
+	BL output_string
+	MOV r0, #0xD
+	BL output_character
+
+	ldr r0, ptr_to_keyboard
+	BL output_string;print keyboard count prompt
+	ldr r0, ptr_to_UARTcount
+	LDRB r0, [r0]
+	ADD r0, r0, #48
+	BL output_character;print keyboard count
+	MOV r0, #0xD
+	BL output_character;print newline and linefeed
+
+	ldr r0, ptr_to_tiva
+	BL output_string;print SW1 count prompt
+	ldr r0, ptr_to_Switchcount
+	LDRB r0, [r0]
+	ADD r0, r0, #48
+	BL output_character;print SW1 count
+	MOV r0, #0xD
+	BL output_character;print newline and linefeed
+
+	ldr r0, ptr_to_UARTgraphprompt
+	BL output_string;print keyboard press graph prompt
+	ldr r0, ptr_to_UARTGraph
+	BL output_string;print keyboard press graph
+	MOV r0, #0xD
+	BL output_character;print newline and linefeed
+
+	ldr r0, ptr_to_Switchgraphprompt
+	BL output_string;print SW1 press graph prompt
+	ldr r0, ptr_to_SwitchGraph
+	BL output_string;print SW1 press graph
+	MOV r0, #0xD
+	BL output_character;print newline and linefeed
+
+
 
 
 
@@ -234,6 +336,7 @@ simple_read_character:
 	MOV PC,LR      	; Return
 
 ;------------------------------------------------------------------------------------------------------------------------------------------
+
 updart:; takes a memeory address in r0 and a number of x's to put there in r1
 	PUSH {lr}
 	PUSH {r0}
@@ -243,7 +346,8 @@ updart:; takes a memeory address in r0 and a number of x's to put there in r1
 	MOV r2, #120;Save ASCII value for "x" in r2
 
 updartloop:
-	BEQ r1, #0, updartend; exit once nummber of x's desired added to string
+	CMP r1, #0
+	BEQ updartend; exit once nummber of x's desired added to string
 	STRB r2, [r0]		;store x in memory
 	SUB r1, r1, #1		;decrement counter
 	ADD r0, r0, #1		;increment memory address
@@ -309,7 +413,7 @@ OSloop:
 	B OSloop
 
 OSend:
-	MOV r0, #0xD; if null byte, load value for "enter" instead
+	;MOV r0, #0xD; if null byte, load value for "enter" instead
 	BL output_character
 	POP {lr}
 	MOV pc, lr
@@ -341,6 +445,128 @@ nomorefork:
 	MOV pc, lr
 
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+uart_init:
+	PUSH {lr}  ; Store register lr on stack
+
+	;Enables clock for UART0
+	MOV r0, #0xE618
+	MOVT r0, #0x400F
+	MOV r1, #1
+	STR r1, [r0]
+	;Enables clock for PORTA
+	MOV r0, #0xE608
+	MOVT r0, #0x400F
+	MOV r1, #1
+	STR r1, [r0]
+	;Disables UART0 control
+	MOV r0, #0xC030
+	MOVT r0, #0x4000
+	MOV r1, #0
+	STR r1, [r0]
+	;Sets the Baud Rate for UART0_IBRD_R to 115,200
+	MOV r0, #0xC024
+	MOVT r0, #0x4000
+	MOV r1, #8
+	STR r1, [r0]
+	;Sets the Baud Rate for UART0_FBRD_R to 115,200
+	MOV r0, #0xC028
+	MOVT r0, #0x4000
+	MOV r1, #44
+	STR r1, [r0]
+	;Ensures we are using the system clock
+	MOV r0, #0xCFC8
+	MOVT r0, #0x4000
+	MOV r1, #0
+	STR r1, [r0]
+	;Sets the word length to 8 bits with 1 stop bit and no parity bits
+	MOV r0, #0xC02C
+	MOVT r0, #0x4000
+	MOV r1, #0x60
+	STR r1, [r0]
+	;Enables UART0 Control
+	MOV r0, #0xC030
+	MOVT r0, #0x4000
+	MOV r1, #0x301
+	STR r1, [r0]
+
+	;Sets PA0 to Digital Port
+	MOV r0, #0x451C
+	MOVT r0, #0x4000
+	LDR r1, [r0]
+	ORR r1, r1, #0x03
+	STR r1, [r0]
+	;Sets PA1 to Digital Port
+	MOV r0, #0x4420
+	MOVT r0, #0x4000
+	LDR r1, [r0]
+	ORR r1, r1, #0x03
+	STR r1, [r0]
+	;Configures PA0 and PA1 for UART0
+	MOV r0, #0x452C
+	MOVT r0, #0x4000
+	LDR r1, [r0]
+	ORR r1, r1, #0x11
+	STR r1, [r0]
+
+	POP {lr}
+	mov pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+tiva_init:
+	PUSH {lr}
+	PUSH {r0}
+	PUSH {r1}
+;*RGB AND SW1*
+	;*Enable clock for port F*
+	MOV r0, #0xE608
+	MOVT r0, #0x400F
+
+	LDR r1, [r0]
+	ORR r1, r1, #32
+	STR r1, [r0]
+
+	;*Set pins F1-F3 to be Outputs*
+	MOV r0, #0x5400
+	MOVT r0, #0x4002
+
+	LDRB r1, [r0]
+	ORR r1, r1, #14
+	STRB r1, [r0]
+
+	;*Set pin F4 to be an Input*
+	MOV r0, #0x5400
+	MOVT r0, #0x4002
+
+	LDRB r1, [r0]
+	AND r1, r1, #0xEF
+	STRB r1, [r0]
+
+	;*Set pins F1-F4 to be Digital*
+	MOV r0, #0x551C
+	MOVT r0, #0x4002
+
+	LDRB r1, [r0]
+	ORR r1, r1, #0x1E
+	STRB r1, [r0]
+
+	;*Turn on pullup resistor for pin F4*
+	;MOV r0, #0x5510
+;	MOVT r0, #0x4002
+;
+;	LDRB r1, [r0]
+;	ORR r1, r1, #16
+;	STRB r1, [r0]
+
+	BL not_a_fork_bomb;give time to make sure everything sets before continuing
+
+	POP {r1}
+	POP {r0}
+	POP {lr}
+
+	MOV pc,lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 
 	.end
