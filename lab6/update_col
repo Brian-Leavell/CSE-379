@@ -1,0 +1,28 @@
+PUSH {lr}
+
+LDR r0, ptr_to_x_coord
+LDRB r0, [r0] ;load current x value of player
+CMP r0, #1 ;check if player went out left side of stage
+BLT iscollision
+CMP r0, #20 ;check if player went out right side of stage, if we want to use different size board instead of using magic number 20 we would have to load the board width from memory and compare to that
+BGT iscollision
+
+LDR r0, ptr_to_y_coord
+LDRB r0, [r0];load current y value of player
+CMP r0, #1;check if player went out top of stage
+BLT iscollision
+CMP r0, #20 ;check if player went out bottom of stage, if we want to use different size board instead of using magic number 20 we would have to load the board height from memory and compare to that
+BGT iscollision
+
+B update_col_end; jump over iscollsion if no collision occurred
+
+
+iscollision:; set col_bool to 1 if a collision occurred
+LDR r0, ptr_to_col_bool
+MOV r1, #1
+STRB r1, [r0]
+
+update_col_end:
+
+POP {lr}
+MOV pc, lr

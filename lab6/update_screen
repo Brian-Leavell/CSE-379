@@ -1,0 +1,7 @@
+PUSH {lr}
+
+LDR r0, ptr_to_bored
+BL output_string
+
+POP {lr}
+MOV pc, lr

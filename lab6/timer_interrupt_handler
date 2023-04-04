@@ -1,0 +1,8 @@
+;clear interrupt flag here (unless timer clears itself automatically)
+
+BL clear_pos
+BL update_pos
+BL write_pos
+BL update_screen
+
+BX lr

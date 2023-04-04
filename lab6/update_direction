@@ -1,0 +1,25 @@
+PUSH {lr}
+
+LDR r1, ptr_to_prev_key ; load address of storage for key pressed in case we want to update it
+CMP r0, #119; see if input is "w"
+BEQ do_update
+
+CMP r0, #97 ; see if input is "a"
+BEQ do_update
+
+CMP r0, #115 ; see if input is "s"
+BEQ do_update
+
+CMP r0, #100 ; see id input is "d"
+BEQ do_update
+
+B update_direction_end ; skip over updates if no valid keys pressed
+
+
+do_update:; updates prev_key with whatever is in r0
+STR r0, [r1]
+
+update_direction_end:
+
+POP {lr}
+MOV pc, lr

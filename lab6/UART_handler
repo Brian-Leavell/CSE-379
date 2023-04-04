@@ -1,0 +1,13 @@
+;clear interrupt flag here
+
+;clear the interrupt flag
+MOV r0, #0xC000
+MOVT r0, #0x4000
+LDRB r1, [r0, #0x044]
+ORR r1, r1, #0x10
+STRB r1, [r0, #0x044]
+
+BL read_char
+BL update_direction
+
+BX lr

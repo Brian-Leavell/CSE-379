@@ -1,0 +1,18 @@
+PUSH {lr}
+BL timer_init
+BL UART_init
+BL SW1_init
+BL timer_int_init
+BL UART_int_init
+BL SW1_int_init
+BL update_screen
+;LDR r0, ptr_to_bored
+;BL output_string
+
+lab_6_loop:; keep looping main until a collision has been detected
+LDR r0, ptr_to_col_bool
+CMP r0, #0
+BEQ lab_6_loop
+
+POP {lr}
+MOV pc, lr
