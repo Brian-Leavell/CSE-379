@@ -11,7 +11,7 @@ mydata:	.byte	0x20	; This is where you can store data.
 			; directives .half & .word
 
 
-bored:	.string "----------------------", 0xA, 0xD
+bored:		.string "----------------------", 0xA, 0xD
 		.string "|                    |", 0xA, 0xD
 		.string "|                    |", 0xA, 0xD
 		.string "|                    |", 0xA, 0xD
@@ -197,6 +197,10 @@ Timer_Init:
 	LDRB r1, [r0, #0x024]
 	ORR r1, r1, #1
 	STRB r1, [r0, #0x024]
+	
+	;Interrupt Interval Period
+	MOV r1, #16000000  ;makes interrupts occur every second (16MHz clock) 
+	STR r1, [r0, #0x028]
 
 	;Configure processor to allow Timer to interrupt
 	MOV r0, #0xE000E100
@@ -243,13 +247,20 @@ Switch_Handler:
 
 Timer_Handler:
 
-	; Your code for your Timer handler goes here.  It is not needed
-	; for Lab #5, but will be used in Lab #6.  It is referenced here
-	; because the interrupt enabled startup code has declared Timer_Handler.
-	; This will allow you to not have to redownload startup code for
-	; Lab #6.  Instead, you can use the same startup code as for Lab #5.
-	; Remember to preserver registers r4-r11 by pushing then popping
-	; them to & from the stack at the beginning & end of the handler.
+	PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+	PUSH {r0}
+	PUSH {r1}
+	
+	
+
+
+
+
+
+
+	POP {r1}
+	POP {r0}
+	POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
 
 
 	BX lr       	; Return
