@@ -9,6 +9,10 @@ mydata:	.byte	0x20	; This is where you can store data.
 			; (initialized to 0x20) at the label mydata.
 			; Halfwords & Words can be stored using the
 			; directives .half & .word
+xCoor:	.string "   ", 0
+yCoor:	.string "   ", 0
+prevLoc: .string "         ", 0
+
 
 
 bored:		.string "----------------------", 0xA, 0xD
