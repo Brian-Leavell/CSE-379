@@ -795,7 +795,7 @@ game_over:
 	BL output_string
 
 
-	LDR r0, ptr_to_move_count_string; print the final number of moves
+	LDR r0, ptr_to_move_count; print the final number of moves
 	LDRB r0, [r0]
 	LDR r1, ptr_to_move_count_string
 	BL int2string
