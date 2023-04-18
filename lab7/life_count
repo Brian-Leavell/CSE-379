@@ -1,0 +1,60 @@
+life_count:
+
+  PUSH {lr}
+  PUSH {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9}
+
+ 	;*Load Port B data register*
+	MOV r2, #0x53FC
+	MOVT r2, #0x4000
+  
+  LDRB r3, [r2]       ;data register for LEDs
+  
+  ldr r0, ptr_to_lives
+  LDRB r1, [r0]
+  
+  CMP r1, #4
+  BEQ 4_lives
+  CMP r1, #3
+  BEQ 3_lives
+  CMP r1, #2
+  BEQ 2_lives
+  CMP r1, #1
+  BEQ 1_life
+  CMP r1, #0
+  BEQ ded
+  
+  
+4_lives:
+  MOV r1, #15
+  BFI r3, r1, #0, #4
+  STRB r3, [r2]
+  B end
+
+3_lives:
+  MOV r1, #7
+  BFI r3, r1, #0, #4
+  STRB r3, [r2]
+  B end
+  
+2_lives:
+  MOV r1, #3
+  BFI r3, r1, #0, #4
+  STRB r3, [r2]
+  B end  
+
+1_life:
+  MOV r1, #1
+  BFI r3, r1, #0, #4
+  STRB r3, [r2]
+  B end
+  
+ded:
+  MOV r1, #0
+  BFI r3, r1, #0, #4
+  STRB r3, [r2]
+  B end
+
+end:
+  POP {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9}
+  POP {lr}
+  MOV pc, lr
