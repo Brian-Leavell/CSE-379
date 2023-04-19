@@ -1,0 +1,30 @@
+SW1_Handler:
+
+  PUSH {lr}
+  PUSH {r0,r1,r2,r3}
+
+  ldr r0, ptr_to_pause_bool
+  LDRB r1, [r0]
+  
+  CMP r1, #1
+  BEQ pause_it
+  
+pause_it:
+  
+  ;Disables timer by writing a 0 to bit 0
+		MOV r0, #0x0000
+		MOVT r0, #0x4003
+		LDRB r1, [r0, #0x00C]
+		BFC r1, #0, #1
+		STRB r1, [r0, #0x00C]
+  
+    
+    
+   
+ 
+  
+end:
+  
+  POP {r0,r1,r2,r3}
+  POP {lr}
+  MOV pc, lr
