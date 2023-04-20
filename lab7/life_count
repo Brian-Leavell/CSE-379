@@ -1,7 +1,7 @@
 life_count:
 
   PUSH {lr}
-  PUSH {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9}
+  PUSH {r0,r1,r2,r3}
 
   ;*Load Port B data register*
   MOV r2, #0x53FC
@@ -56,6 +56,6 @@ ded:
   B end
 
 end:
-  POP {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9}
+  POP {r0,r1,r2,r3}
   POP {lr}
   MOV pc, lr
