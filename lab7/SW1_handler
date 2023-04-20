@@ -18,6 +18,7 @@ SW1_Handler:
   
   CMP r1, #1		;user has pushed the sw1 button to pause the game
   BEQ pause_it
+  B resume
   
 pause_it:
   
@@ -28,14 +29,34 @@ pause_it:
   BFC r1, #0, #1
   STRB r1, [r0, #0x00C]
   
-  ldr r0, ptr_to_pause_prompt
-  LDRB r1, [r0]
-  ;352 offset inside board to place prompt
+  ;Turns the RGB LED blue
+  MOV r0, #2
+  BL illuminate_RGB_LED
   
-    
-    
-   
+  ldr r0, ptr_to_pause_prompt
+  ldr r1, ptr_to_bored
+  ADD r1, r1, #352  ;Offset to place prompt towards the bottom of the screen\
+  STR r0, [r1]  ;Writes pause to the screen
  
+
+
+resume: 
+   
+  ;Enables timer by writing a 1 to bit 0
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  ORR r1, r1, #1
+  STRB r1, [r0, #0x00C]
+  
+ ;Turns the RGB LED off 
+  MOV r0, #0
+  BL illuminate_RGB_LED
+  
+  ldr r0, ptr_to_resume   ;All spaces which will remove the PAUSED from the screen
+  ldr r1, ptr_to_bored
+  ADD r1, r1, #352        ;Offset to where prompt is on the board
+  STR r0, [r1]            ;Clears pause from the screen
   
 end:
   
