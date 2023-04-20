@@ -2,15 +2,9 @@ life_count:
 
   PUSH {lr}
   PUSH {r0,r1,r2,r3}
-
-  ;*Load Port B data register*
-  MOV r2, #0x53FC
-  MOVT r2, #0x4000
-  
-  LDRB r3, [r2]       ;data register for LEDs
   
   ldr r0, ptr_to_lives
-  LDRB r1, [r0]		;stores the number of lives the user currently has
+  LDRB r1, [r0]		;stores the number of lives the user currently has into r1
   
   ;below checks how many lives they have left and will illuminate that many LEDs based on the number
   CMP r1, #4
@@ -26,34 +20,28 @@ life_count:
   
   
 4_lives:
-  MOV r1, #15	;turns on all 4 LEDs
-  BFI r3, r1, #0, #4
-  STRB r3, [r2]
+  MOV r0, #15	;turns on all 4 LEDs
+  BL illuminate_LEDs
   B end
 
 3_lives:
-  MOV r1, #7	;turns on 3 LEDs
-  BFI r3, r1, #0, #4
-  STRB r3, [r2]
+  MOV r0, #7	;turns on 3 LEDs
+  BL illuminate_LEDs
   B end
   
 2_lives:
-  MOV r1, #3	;turns on 2 LEDs
-  BFI r3, r1, #0, #4
-  STRB r3, [r2]
-  B end  
+  MOV r0, #3	;turns on 2 LEDs
+  BL illuminate_LEDs
+  B end 
 
 1_life:
-  MOV r1, #1	;turns on 1 LED
-  BFI r3, r1, #0, #4
-  STRB r3, [r2]
+  MOV r0, #1	;turns on 1 LED
+  BL illuminate_LEDs
   B end
   
 ded:
-  MOV r1, #0	;all LEDs turn off
-  BFI r3, r1, #0, #4
-  STRB r3, [r2]
-  B end
+  MOV r0, #0	;turns off all 4 LEDs
+  BL illuminate_LEDs
 
 end:
   POP {r0,r1,r2,r3}
