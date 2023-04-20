@@ -11,9 +11,9 @@ SW1_Handler:
   ORR r1, r1, #0x10
   STRB r1, [r0, #0x41C]
 
-  ldr r0, ptr_to_pause_bool		;checks to see if game is paused currently or not
+ ;checks to see if game is paused currently or not
+  ldr r0, ptr_to_pause_bool
   LDRB r1, [r0]
-  
   ORN r1, r1, #0
   
   CMP r1, #1		;user has pushed the sw1 button to pause the game
