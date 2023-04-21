@@ -35,7 +35,7 @@ pause_it:
   
   ldr r0, ptr_to_pause_prompt
   ldr r1, ptr_to_bored
-  ADD r1, r1, #352  ;Offset to place prompt towards the bottom of the screen\
+  ADD r1, r1, #331  ;Offset to place prompt towards the bottom of the screen\
   STR r0, [r1]  ;Writes pause to the screen
  
 
@@ -55,7 +55,7 @@ resume:
   
   ldr r0, ptr_to_resume   ;All spaces which will remove the PAUSED from the screen
   ldr r1, ptr_to_bored
-  ADD r1, r1, #352        ;Offset to where prompt is on the board
+  ADD r1, r1, #331        ;Offset to where prompt is on the board
   STR r0, [r1]            ;Clears pause from the screen
   
 end:
