@@ -1,0 +1,24 @@
+update_OOB:
+
+    PUSH {lr}
+    PUSH {r0,r1}
+
+    ldr r0, ptr_to_y_coord
+    LDRB r1, [r0]
+    CMP r1, #17     ;Bottom of board, player did not hit ball in time
+    BEQ is_OOB
+    B end           ;If not then no lives are lost
+
+;Ball has gone out of bounds
+is_OOB:
+
+    ;player loses a life
+    ldr r0, ptr_to_lives
+    LDRB r1, [r0]
+    SUB r1, r1, #1
+    STRB r1, [r0]
+
+end:
+    POP {r0,r1}
+    POP {lr}
+    MOV pc, lr
