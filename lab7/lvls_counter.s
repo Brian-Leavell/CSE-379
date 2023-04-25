@@ -1,16 +1,16 @@
 lvls_counter:
 
   PUSH {lr}
-  PUSH {r0,r1,r2,r3,r4,r5,r6,r7,r8}
+  PUSH {r0,r1,r2,r3}
   
   MOV r0, #0
 
-	;*Load Port B data register*
-	MOV r2, #0x53FC
+;*Load Port B data register*
+  MOV r2, #0x53FC
   MOVT r2, #0x4000
 
-	;*Insert data passed into r0 into LEDs data register*
-	LDRB r1, [r2]
+;Load data from LEDs data register*
+  LDRB r1, [r2]
   
 loop:
   AND r3, r1, #1
@@ -28,6 +28,9 @@ push:
   B loop
   
 end:
-  POP {r0,r1,r2,r3,r4,r5,r6,r7,r8}
+  ldr r2, ptr_to_lvl_count	;store value in memory for future subroutine
+  STRB r0, [r2]
+  
+  POP {r0,r1,r2,r3}
   POP {lr}
   MOV pc, lr
