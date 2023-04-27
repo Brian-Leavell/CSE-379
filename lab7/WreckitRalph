@@ -1,0 +1,224 @@
+;Logic for hitting brick and clearing it
+;Update ball color -> ptr_to_ball_color
+;update RGB LED to most recent color
+;Given x coord of brick in r0 and y coord of brick in r1
+;Example Coords: X = 3 Y = 4
+WreckitRalph:
+
+    PUSH {lr}
+    PUSH {r0,r1,r2,r3}
+
+    MOV r2, #25 ;used for y coord to navigate board
+
+update_ball_color:    ;Update ball color here
+    MUL r1, r1, r2  
+    ADD r0, r1, r0  
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+    LDRB r2, [r2]   ;load to see what char is there
+
+    ;checks to see what color brick was hit
+    CMP r2, #114
+    BEQ redBall
+    CMP r2, #103
+    BEQ greenBall
+    CMP r2, #98
+    BEQ blueBall
+    CMP r2, #121
+    BEQ yellowBall
+    CMP r2, #112
+    BEQ purpleBall
+
+redBall:
+    PUSH {r0,r1}
+
+    ;updates ptr in mem for ball color
+    ldr r0, ptr_to_ball_color
+    MOV r1, #114
+    STRB r1, [r0]
+    ;illuminates RGB to color of recently hit brick
+    MOV r0, #1
+    BL illuminate_RGB_LED
+
+    POP {r0,r1}
+    B imGonnaWreckit
+
+greenBall:
+    PUSH {r0,r1}
+
+    ;updates ptr in mem for ball color
+    ldr r0, ptr_to_ball_color
+    MOV r1, #103
+    STRB r1, [r0]
+    ;illuminates RGB to color of recently hit brick
+    MOV r0, #7
+    BL illuminate_RGB_LED
+
+    
+    POP {r0,r1}
+    B imGonnaWreckit
+
+
+blueBall:
+    PUSH {r0,r1}
+
+    ;updates ptr in mem for ball color
+    ldr r0, ptr_to_ball_color
+    MOV r1, #98
+    STRB r1, [r0]
+    ;illuminates RGB to color of recently hit brick
+    MOV r0, #2
+    BL illuminate_RGB_LED
+
+    
+    POP {r0,r1}
+    B imGonnaWreckit
+
+yellowBall:
+    PUSH {r0,r1}
+
+    ;updates ptr in mem for ball color
+    ldr r0, ptr_to_ball_color
+    MOV r1, #121
+    STRB r1, [r0]
+    ;illuminates RGB to color of recently hit brick
+    MOV r0, #6
+    BL illuminate_RGB_LED
+
+    
+    POP {r0,r1}
+    B imGonnaWreckit
+
+purpleBall:
+    PUSH {r0,r1}
+
+    ;updates ptr in mem for ball color
+    ldr r0, ptr_to_ball_color
+    MOV r1, #112
+    STRB r1, [r0]
+    ;illuminates RGB to color of recently hit brick
+    MOV r0, #3
+    BL illuminate_RGB_LED
+
+    
+    POP {r0,r1}
+    B imGonnaWreckit
+    
+imGonnaWreckit:
+    ;Checks to see what brick was hit based on X coordinate
+    CMP r0, #3 
+    BLE brickOne
+    CMP r0, #6
+    BLE brickTwo
+    CMP r0, #9
+    BLE brickThree
+    CMP r0, #12
+    BLE brickFour
+    CMP r0, #15
+    BLE brickFive
+    CMP r0, #18
+    BLE brickSix
+    CMP r0, #21
+    BLE brickSeven
+    B end   ;End if error
+
+
+brickOne:
+    MUL r1, r1, r2  ;Finds the row we are in
+    ADD r0, r1, #1  ;Starts at first piece of first brick
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+
+    ;Clears brick
+    MOV r1, #32
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    B end
+
+
+brickTwo:
+    MUL r1, r1, r2  ;Finds the row we are in
+    ADD r0, r1, #4  ;Starts at first piece of first brick
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+
+    ;Clears brick
+    MOV r1, #32
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    B end
+
+
+brickThree:
+    MUL r1, r1, r2  ;Finds the row we are in
+    ADD r0, r1, #7  ;Starts at first piece of first brick
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+
+    ;Clears brick
+    MOV r1, #32
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    B end
+
+
+brickFour:
+    MUL r1, r1, r2  ;Finds the row we are in
+    ADD r0, r1, #10  ;Starts at first piece of first brick
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+
+    ;Clears brick
+    MOV r1, #32
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    B end
+
+
+brickFive:
+    MUL r1, r1, r2  ;Finds the row we are in
+    ADD r0, r1, #13  ;Starts at first piece of first brick
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+
+    ;Clears brick
+    MOV r1, #32
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    B end
+
+
+brickSix:
+    MUL r1, r1, r2  ;Finds the row we are in
+    ADD r0, r1, #16  ;Starts at first piece of first brick
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+
+    ;Clears brick
+    MOV r1, #32
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    B end
+
+
+brickSeven:
+    MUL r1, r1, r2  ;Finds the row we are in
+    ADD r0, r1, #19  ;Starts at first piece of brick
+    ldr r2, ptr_to_bored
+    ADD r2, r2, r0  ;offset for specific brick in specific row
+
+    ;Clears brick by writing three spaces to board
+    MOV r1, #32
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+    STRB r1, [r2], #1
+
+end:
+    POP {r0,r1,r2,r3}
+    POP {lr}
