@@ -1,0 +1,427 @@
+blue red green purple yellow
+
+.string 27, "[31m" #red fore
+.string 27, "[32m" #green fore
+.string 27, "[33m" #yellow fore
+.string 27, "[34m" #blue fore
+.string 27, "[35m" #magenta fore
+
+.string 27, "[41m" #red back
+.string 27, "[42m" #green back
+.string 27, "[43m" #yellow back
+.string 27, "[44m" #blue back
+.string 27, "[45m" #magenta back
+
+;1-basic
+;2-red space
+;3-green space
+;4-yellow space
+;5-blue space
+;6-purple space
+
+;7-far left paddle
+;8-middle left paddle
+;9-middle middle paddle
+;11-middle right paddle
+;14-far right paddle
+
+
+bored: .string: 1," ",1," ",1," ",1," ",1," ",1," ",1,"S",1,"C",1,"O",1,"R",1,"E",1,":",1," ",1,"0",1,"0",1,"0",1,"0",1," ",1," ",1," ",1," ",1," ",1," ", 0xA, 0XC,
+                1,"+",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"+", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"|",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1," ",1,"|", 0xA, 0XC,
+                1,"+",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"-",1,"+", 0xA, 0XC, 0x0
+
+;               "+---------------------+", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "+---------------------+", 0xA, 0xC, 0x0
+
+red: .string 27, "[31m ", 0 ;red fore with space character
+green: .string 27, "[32m ", 0 ;green fore with space character
+yellow: .string 27, "[33m ", 0 ;yellow fore with space character
+blue: .string 27, "[34m ", 0 ;blue fore with space character
+purple: .string 27, "[35m ", 0 ;magenta fore with space character
+death: .string "-", 0 ;print out a dash for the apearance of the death squares
+
+farleft: .string "-", 0 ;print out a dash for the apearance of the death squares
+middleleft: .string "-", 0 ;print out a dash for the apearance of the death squares
+middle: .string "-", 0 ;print out a dash for the apearance of the death squares
+middleright: .string "-", 0 ;print out a dash for the apearance of the death squares
+farright: .string "-", 0 ;print out a dash for the apearance of the death squares
+
+;bored: .string  "+---------------------+", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "|                     |", 0xA, 0xC,
+;                "+xxxxxxxxxxxxxxxxxxxxx+", 0xA, 0xC, 0x0
+
+
+output_board:
+
+	PUSH {lr};prints the null terminated string starting at address in r0 to standard output
+	MOV r1, r0; put mem adress in r1 since r0 will be changed
+
+OBloop:
+	LDRB r0, [r1]; get byte at mem pointer
+
+  CMP r0, #0; check to see if null byte hit
+	BEQ OBend
+
+	CMP r0, #114; check to see if "r" hit
+	BEQ dored
+
+  CMP r0, #103; check to see if "g" hit
+	BEQ dogreen
+
+  CMP r0, #121; check to see if "y" hit
+	BEQ doyellow
+
+  CMP r0, #98; check to see if "b" hit
+	BEQ doblue
+
+  CMP r0, #112; check to see if "p" hit
+	BEQ dopurple
+
+  CMP r0, #120; check to see if "x" hit
+	BEQ dodeath
+
+  CMP r0, #97; check to see if "a" hit
+	BEQ dofl
+
+  CMP r0, #98; check to see if "b" hit
+	BEQ doml
+
+  CMP r0, #99; check to see if "c" hit
+	BEQ dom
+
+  CMP r0, #100; check to see if "d" hit
+	BEQ domr
+
+  CMP r0, #101; check to see if "e" hit
+	BEQ dofr
+
+	PUSH {r1}
+	BL output_character
+	POP {r1}
+	ADD r1, r1, #1; increment memory pointer to next digit
+	B OBloop
+
+dored:
+  LDR r0, ptr_to_red
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+dogreen:
+  LDR r0, ptr_to_green
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+doyellow:
+  LDR r0, ptr_to_yellow
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+doblue:
+  LDR ptr_to_blue
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+dopurple:
+  LDR r0, ptr_to_blue
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+dodeath:
+  LDR r0, ptr_to_death
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+
+dofl:
+  LDR r0, ptr_to_farleft
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+doml:
+  LDR r0, ptr_to_middleleft
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+dom:
+  LDR r0, ptr_to_middle
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+domr:
+  LDR r0, ptr_to_middleright
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+dofr:
+  LDR r0, ptr_to_farright
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
+
+OBend:
+	;MOV r0, #0xD; if null byte, load value for "enter" instead
+	BL output_character
+	POP {lr}
+	MOV pc, lr
+
+update_paddle:
+PUSH {lr}
+
+LDR r0, ptr_to_bored ;load the pointer to the beginning of the board
+ADD r0, r0, #400 ;25 per line, 16 lines to get to beginning of paddle line
+LDR r1, ptr_to_paddle_offset; get address storing offset to far left of paddle
+LDRB r1, [r1] ;get the offset from the beginning of the line to the far left of the paddle
+ADD r0, r0, r1; get the position of the far left of the paddle
+LDR r2, ptr_to_paddle_direction; load address of which way the paddle is supposed to move
+LDRB r2, [r2]; load ASCII value of direction to move paddle in
+
+CMP r2, #97
+BEQ move_paddle_left ;If last pressed a, move left functionality
+CMP r2, #100
+BEQ move_paddle_right ;If last pressed d, move right functionality
+B update_paddle_end
+
+;make sure to take into account that if the paddle is all the way left it should
+;not move left, if all the way right it should not move right.
+
+move_paddle_left:
+CMP r1, #1; check the offset of the left of the paddle
+BLE update_paddle_end; if the paddle is already all the way left, skip to end
+
+SUB r0, r0, #1; get position to begin placing new paddle
+STRB #97, [r0]; place far left
+STRB #98, [r0, #1]; place middle left
+STRB #99, [r0, #2]; place middle
+STRB #100, [r0, #3]; place middle right
+STRB #101, [r0, #4]; place far right
+STRB #32, [r0, #5]; overwrite old far right with a space
+
+;ADD CURSOR UPDATES HERE FOR FINAL VERSION
+B update_paddle_end
+
+move_paddle_right:
+CMP r1, #17; check the offset of the left of the paddle
+BGE update_paddle_end; if the paddle is already all the way right, skip to end
+
+SUB r0, r0, #1; get position to begin placing new paddle
+STRB #32, [r0]; overwrite old far left with a space
+STRB #97, [r0, #1]; place far left
+STRB #98, [r0, #2]; place middle left
+STRB #99, [r0, #3]; place middle
+STRB #100, [r0, #4]; place middle right
+STRB #101, [r0, #5]; place far right
+
+;ADD CURSOR UPDATES HERE FOR FINAL VERSION
+B update_paddle_end; would fall through but just in case I have to add functionality here later and forget
+
+
+;make a place that saves the last character the ball landed on to check and update vector for ball as well as board (in case it overwrote a wall)
+
+update_paddle_end:
+POP {lr}
+MOV pc, lr
+
+
+update_ball:
+PUSH {lr}
+PUSH {r4,r5,r6}
+
+LDR r0, ptr_to_ball_x
+LDRB r0, [r0]; get x coord of ball
+LDR r1, ptr_to_ball_y
+LDRB r1, [r1]; get y coord of ball
+LDR r2, ptr_to_x_vector
+LDRB r3, [r2]; get x vector
+ADD r0, r0, r3; update x coord of ball
+LDR r4, ptr_to_y_vector
+LDRB r5, [r4]; get y vector
+ADD r1, r1, r5; update y coord of ball
+
+
+CMP r0, #0
+IT LE
+ADDLE r3, r3, #2 ;if vector -1 and colliding with left wall, make vector 1
+
+CMP r0, #22
+IT GE
+SUBGE r3, r3, #2 ;if vector 1 and colliding with right wall, make vector -1
+
+STRB r3, [r2] ;store new x vector
+
+CMP r1, #0
+BGT y_invert_skip ;don't invert y if not hitting top of stage
+;PUSH {r6}
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+;POP {r6}
+
+y_invert_skip:
+
+;check for collision with color block, call wreckitralph in this case
+;check for collison with paddle, add second hidden paddle under real paddle to handle jumping through with angle of 60
+MUL r6, r1, #25
+ADD r6, r6, r0 ;get offset of ball destination
+LDRB r6, [r6] ;get character currently at ball destination
+
+CMP r6, #114 ;check for "r" block hit
+BNE maybe_green
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph
+POP {r0-r3}}
+B mr_ralph_end
+
+maybe_green:
+CMP r6, #103 ;check for "g" block hit
+BNE maybe_yellow
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph
+POP {r0-r3}}
+B mr_ralph_end
+
+maybe_yellow:
+CMP r6, #121 ;check for "y" block hit
+BNE maybe_blue
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph
+POP {r0-r3}}
+B mr_ralph_end
+
+maybe_blue:
+CMP r6, #98 ;check for "b" block hit
+BNE maybe_purple
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph
+POP {r0-r3}}
+B mr_ralph_end
+
+maybe_purple:
+CMP r6, #112 ;check for "p" block hit
+BNE mr_ralph_end
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph
+POP {r0-r3}}
+B mr_ralph_end
+
+mr_ralph_end:
+
+;make ralph update the ball color and RGB
+
+
+
+LDR r0, ptr_to_ball_color
+LDRB r0, [r0]; get the color to print the ball as
+PUSH {r0}
+BL color_RGB; update the RGB to color of ball
+POP {r0}
+
+LDR r1, ptr_to_ball_x
+
+;update the actual ball using new vectors and old position
+
+POP {r4,r5,r6}
+POP {lr}
+MOV pc, lr
+
+;handle_col:
+;replace the last_col with whatever is hit
