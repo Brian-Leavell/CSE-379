@@ -1,0 +1,165 @@
+;Main subroutine for levelmaker and creation
+toy_maker:
+
+    PUSH {lr}
+    PUSH {r0,r1,r2,r3,r4,r5}
+
+    ;load pointer to determine how many rows to print
+    ldr r0, ptr_to_level_count
+    LDRB r4, [r0]
+    ldr r5, ptr_to_bored
+    ADD r5, r5, 51 ;offset for where to start printing bricks
+
+
+;Loop will print out however many rows that the user selected 
+levelmaker:
+    CMP r4, 0   ;if 0, desired number of rows has been printed
+    BEQ end
+    BL creation
+    SUB r4, r4, #1
+    B levelmaker
+
+;-------------------------------------------------------------
+creation:
+    ;ensures that 7 bricks are printed per row
+    ldr r0, ptr_to_brick_count
+    LDRB r0, [r0]
+    CMP r0, #7
+    BEQ prelevelmaker
+    B brickcolor
+
+prelevelmaker:
+    ADD r5, r5, #4  ;ensures we start at new row below
+    B levelmaker
+
+brickcolor:
+;address for Timer A0 value
+    MOV r0, #0x0050
+    MOVT r0, #0x4003
+
+    MOV r2, #5  ;Used for modulo operation
+
+    ;MODULO OPERATION
+    LDRB r3, [r0]   ;random value of timer
+    SDIV r1, r3, r2
+    MUL r1, r3, r2
+    SUB r1, r3, r1
+
+;Determines what color to make brick 
+;0 = red 114
+;1 = green 103
+;2 = yellow 121
+;3 = blue 98
+;4 = purple 112
+    CMP r1, #0
+    BEQ red
+    CMP r1, #1
+    BEQ green
+    CMP r1, #2
+    BEQ yellow
+    CMP r1, #3
+    BEQ blue
+    CMP r1, #4
+    BEQ purple
+;-------------------------------------------------------------
+red:
+    ;writes 3 Rs to the board
+    MOV r1, #114
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #114
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #114
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    ;update brick count so we know how many we have done
+    ldr r0, ptr_to_brick_count
+    LDRB r1, [r0]
+    ADD r1, r1, #1
+    STRB r1, [r0]
+
+    B creation
+
+green:
+    ;writes 3 Gs to the board
+    MOV r1, #103
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #103
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #103
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    ;update brick count so we know how many we have done
+    ldr r0, ptr_to_brick_count
+    LDRB r1, [r0]
+    ADD r1, r1, #1
+    STRB r1, [r0]
+
+    B creation
+
+
+yellow:
+    ;writes 3 Ys to the board
+    MOV r1, #121
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #121
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #121
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    ;update brick count so we know how many we have done
+    ldr r0, ptr_to_brick_count
+    LDRB r1, [r0]
+    ADD r1, r1, #1
+    STRB r1, [r0]
+
+
+    B creation
+
+blue:
+    ;writes 3 Bs to the board
+    MOV r1, #98
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #98
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #98
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    ;update brick count so we know how many we have done
+    ldr r0, ptr_to_brick_count
+    LDRB r1, [r0]
+    ADD r1, r1, #1
+    STRB r1, [r0]
+
+    B creation
+
+purple:
+    ;writes 3 Ps to the board
+    MOV r1, #112
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #112
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    MOV r1, #112
+    STRB r1, [r5]
+    ADD r5, r5, #1
+    ;update brick count so we know how many we have done
+    ldr r0, ptr_to_brick_count
+    LDRB r1, [r0]
+    ADD r1, r1, #1
+    STRB r1, [r0]
+
+    B creation
+
+end:
+    POP {r0,r1,r2,r3,r4,r5}
+    POP {lr}
+    MOV pc, lr
