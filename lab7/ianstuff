@@ -78,6 +78,12 @@ middle: .string "-", 0 ;print out a dash for the apearance of the death squares
 middleright: .string "-", 0 ;print out a dash for the apearance of the death squares
 farright: .string "-", 0 ;print out a dash for the apearance of the death squares
 
+redball: .string 27, "[31m*", 0 ;red fore with space character
+greenball: .string 27, "[32m*", 0 ;green fore with space character
+yellowball: .string 27, "[33m*", 0 ;yellow fore with space character
+blueball: .string 27, "[34m*", 0 ;blue fore with space character
+purpleball: .string 27, "[35m*", 0 ;magenta fore with space character
+
 ;bored: .string  "+---------------------+", 0xA, 0xC,
 ;                "|                     |", 0xA, 0xC,
 ;                "|                     |", 0xA, 0xC,
@@ -97,6 +103,28 @@ farright: .string "-", 0 ;print out a dash for the apearance of the death square
 ;                "|                     |", 0xA, 0xC,
 ;                "+xxxxxxxxxxxxxxxxxxxxx+", 0xA, 0xC, 0x0
 
+  .text
+
+ptr_to_bored: .word bored
+ptr_to_death: .word death
+
+ptr_to_red: .word red
+ptr_to_green: .word green
+ptr_to_yellow: .word yellow
+ptr_to_blue: .word blue
+ptr_to_purple: .word purple
+
+ptr_to_redball: .word redball
+ptr_to_greenball: .word greenball
+ptr_to_yellowball: .word yellowball
+ptr_to_blueball: .word blueball
+ptr_to_purpleball: .word purpleball
+
+ptr_to_farleft: .word farleft
+ptr_to_middleleft: .word middleleft
+ptr_to_middle: .word middle
+ptr_to_middleright: .word middleright
+ptr_to_farright: .word farright
 
 output_board:
 
@@ -142,6 +170,21 @@ OBloop:
   CMP r0, #101; check to see if "e" hit
 	BEQ dofr
 
+  CMP r0, #82; check to see if "R" hit
+  BEQ doredball
+
+  CMP r0, #71; check to see if "G" hit
+  BEQ dogreenball
+
+  CMP r0, #89; check to see if "Y" hit
+  BEQ doyellowball
+
+  CMP r0, #66; check to see if "B" hit
+  BEQ doblueball
+
+  CMP r0, #80; check to see if "P" hit
+  BEQ dopurpleball
+
 	PUSH {r1}
 	BL output_character
 	POP {r1}
@@ -181,7 +224,7 @@ doblue:
   B OBloop
 
 dopurple:
-  LDR r0, ptr_to_blue
+  LDR r0, ptr_to_purple
   PUSH {r1}
   BL output_string
   POP {r1}
@@ -237,11 +280,52 @@ dofr:
   ADD r1, r1, #1; increment memory pointer to next digit
   B OBloop
 
+doredball:
+LDR r0, ptr_to_redball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dogreenball:
+LDR r0, ptr_to_greenball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doyellowball:
+LDR r0, ptr_to_yellowball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doblueball:
+LDR r0, ptr_to_blueball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dopurpleball:
+LDR r0, ptr_to_purpleball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
 OBend:
 	;MOV r0, #0xD; if null byte, load value for "enter" instead
 	BL output_character
 	POP {lr}
 	MOV pc, lr
+
 
 update_paddle:
 PUSH {lr}
@@ -351,7 +435,7 @@ SUB r6, r6, #2 ;get -1 in r6
 MUL r5, r5, r6
 STRB r5, [r4] ;store negative y vector at y vector
 PUSH {r0-r3}
-BL wreck_it_ralph
+BL wreck_it_ralph ;make ralph update the ball color and RGB
 POP {r0-r3}}
 B mr_ralph_end
 
@@ -363,7 +447,7 @@ SUB r6, r6, #2 ;get -1 in r6
 MUL r5, r5, r6
 STRB r5, [r4] ;store negative y vector at y vector
 PUSH {r0-r3}
-BL wreck_it_ralph
+BL wreck_it_ralph ;make ralph update the ball color and RGB
 POP {r0-r3}}
 B mr_ralph_end
 
@@ -375,7 +459,7 @@ SUB r6, r6, #2 ;get -1 in r6
 MUL r5, r5, r6
 STRB r5, [r4] ;store negative y vector at y vector
 PUSH {r0-r3}
-BL wreck_it_ralph
+BL wreck_it_ralph ;make ralph update the ball color and RGB
 POP {r0-r3}}
 B mr_ralph_end
 
@@ -387,7 +471,7 @@ SUB r6, r6, #2 ;get -1 in r6
 MUL r5, r5, r6
 STRB r5, [r4] ;store negative y vector at y vector
 PUSH {r0-r3}
-BL wreck_it_ralph
+BL wreck_it_ralph ;make ralph update the ball color and RGB
 POP {r0-r3}}
 B mr_ralph_end
 
@@ -399,7 +483,7 @@ SUB r6, r6, #2 ;get -1 in r6
 MUL r5, r5, r6
 STRB r5, [r4] ;store negative y vector at y vector
 PUSH {r0-r3}
-BL wreck_it_ralph
+BL wreck_it_ralph ;make ralph update the ball color and RGB
 POP {r0-r3}}
 B mr_ralph_end
 
@@ -407,17 +491,72 @@ mr_ralph_end:
 
 ;make ralph update the ball color and RGB
 
+CMP r6, #97 ;check for fl hit
+BNE maybe_ml
+MOV r6, #1
+SUB r6, r6, #2
+STRB r6, [r2] ;store -1 at x vector
+STRB r6, [r4] ;store -1 at y vector
+
+maybe_ml:
+CMP r6, #98 ;check for ml hit
+BNE maybe_m
+MOV r6, #1
+SUB r6, r6, #2
+STRB r6, [r2] ;store -1 at x vector
+SUB r6, r6, #1
+STRB r6, [r4] ;store -2 at y vector
+
+maybe_m:
+CMP r6, #99 ;check for m hit
+BNE maybe_mr
+MOV r6, #1
+SUB r6, r6, #2
+STRB r6, [r4] ;store -1 at y vector
+ADD r6, r6, #1
+STRB r6, [r2] ;store 0 at x vector
+
+maybe_mr:
+CMP r6, #100 ;check for mr hit
+BNE maybe_fr
+MOV r6, #1
+STRB r6, [r2] ;store 1 at x vector
+SUB r6, r6, #3
+STRB r6, [r4] ;store -2 at y vector
 
 
-LDR r0, ptr_to_ball_color
-LDRB r0, [r0]; get the color to print the ball as
-PUSH {r0}
-BL color_RGB; update the RGB to color of ball
-POP {r0}
+maybe_fr:
+CMP r6, #101 ;check for fr hit
+BNE paddle_check_end
+MOV r6, #1
+STRB r6, [r2] ;store 1 at x vector
+SUB r6, r6, #2
+STRB r6, [r4] ;store -1 at y vector
 
-LDR r1, ptr_to_ball_x
+
+paddle_check_end:
 
 ;update the actual ball using new vectors and old position
+
+LDR r0, ptr_to_ball_y
+LDRB r0, [r0] ;get y coord
+LDR r1, ptr_to_y_vector
+LDRB r1, [r1]
+ADD r0, r0, r1 ;get y coord plus y vector
+MUL r0, r0, #25 ;get y offset to new ball space
+LDR r1, ptr_to_ball_x
+LDRB r1, [r1] ;get x coord
+ADD r0, r0, r1 ;add x coord to y offset
+LDR ptr_to_x_vector
+LDRB r1, [r1] ;get x vector
+ADD r0, r0, r1 ;add x vector to get total offset to new ball space
+LDR r1, ptr_to_ball_color
+LDRB r1, [r1] ;load the new ball character
+STRB r1, [r0] ;store the new ball character at the new ball position
+
+
+
+;update the actual ball using new vectors and old positio
 
 POP {r4,r5,r6}
 POP {lr}
