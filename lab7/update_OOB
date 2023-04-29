@@ -3,7 +3,7 @@ update_OOB:
     PUSH {lr}
     PUSH {r0,r1}
 
-    ldr r0, ptr_to_y_coord
+    ldr r0, ptr_to_ball_y
     LDRB r1, [r0]
     CMP r1, #17     ;Bottom of board, player did not hit ball in time
     BEQ is_OOB
