@@ -281,44 +281,44 @@ dofr:
   B OBloop
 
 doredball:
-LDR r0, ptr_to_redball
-PUSH {r1}
-BL output_string
-POP {r1}
-ADD r1, r1, #1; increment memory pointer to next digit
-B OBloop
+  LDR r0, ptr_to_redball
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
 
 dogreenball:
-LDR r0, ptr_to_greenball
-PUSH {r1}
-BL output_string
-POP {r1}
-ADD r1, r1, #1; increment memory pointer to next digit
-B OBloop
+  LDR r0, ptr_to_greenball
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
 
 doyellowball:
-LDR r0, ptr_to_yellowball
-PUSH {r1}
-BL output_string
-POP {r1}
-ADD r1, r1, #1; increment memory pointer to next digit
-B OBloop
+  LDR r0, ptr_to_yellowball
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
 
 doblueball:
-LDR r0, ptr_to_blueball
-PUSH {r1}
-BL output_string
-POP {r1}
-ADD r1, r1, #1; increment memory pointer to next digit
-B OBloop
+  LDR r0, ptr_to_blueball
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
 
 dopurpleball:
-LDR r0, ptr_to_purpleball
-PUSH {r1}
-BL output_string
-POP {r1}
-ADD r1, r1, #1; increment memory pointer to next digit
-B OBloop
+  LDR r0, ptr_to_purpleball
+  PUSH {r1}
+  BL output_string
+  POP {r1}
+  ADD r1, r1, #1; increment memory pointer to next digit
+  B OBloop
 
 OBend:
 	;MOV r0, #0xD; if null byte, load value for "enter" instead
@@ -330,237 +330,259 @@ OBend:
 update_paddle:
 PUSH {lr}
 
-LDR r0, ptr_to_bored ;load the pointer to the beginning of the board
-ADD r0, r0, #400 ;25 per line, 16 lines to get to beginning of paddle line
-LDR r1, ptr_to_paddle_offset; get address storing offset to far left of paddle
-LDRB r1, [r1] ;get the offset from the beginning of the line to the far left of the paddle
-ADD r0, r0, r1; get the position of the far left of the paddle
-LDR r2, ptr_to_paddle_direction; load address of which way the paddle is supposed to move
-LDRB r2, [r2]; load ASCII value of direction to move paddle in
+  LDR r0, ptr_to_bored ;load the pointer to the beginning of the board
+  ADD r0, r0, #400 ;25 per line, 16 lines to get to beginning of paddle line
+  LDR r1, ptr_to_paddle_offset; get address storing offset to far left of paddle
+  LDRB r1, [r1] ;get the offset from the beginning of the line to the far left of the paddle
+  ADD r0, r0, r1; get the position of the far left of the paddle
+  LDR r2, ptr_to_paddle_direction; load address of which way the paddle is supposed to move
+  LDRB r2, [r2]; load ASCII value of direction to move paddle in
 
-CMP r2, #97
-BEQ move_paddle_left ;If last pressed a, move left functionality
-CMP r2, #100
-BEQ move_paddle_right ;If last pressed d, move right functionality
-B update_paddle_end
+  CMP r2, #97
+  BEQ move_paddle_left ;If last pressed a, move left functionality
+  CMP r2, #100
+  BEQ move_paddle_right ;If last pressed d, move right functionality
+  B update_paddle_end
 
 ;make sure to take into account that if the paddle is all the way left it should
 ;not move left, if all the way right it should not move right.
 
 move_paddle_left:
-CMP r1, #1; check the offset of the left of the paddle
-BLE update_paddle_end; if the paddle is already all the way left, skip to end
+  CMP r1, #1; check the offset of the left of the paddle
+  BLE update_paddle_end; if the paddle is already all the way left, skip to end
 
-SUB r0, r0, #1; get position to begin placing new paddle
-STRB #97, [r0]; place far left
-STRB #98, [r0, #1]; place middle left
-STRB #99, [r0, #2]; place middle
-STRB #100, [r0, #3]; place middle right
-STRB #101, [r0, #4]; place far right
-STRB #32, [r0, #5]; overwrite old far right with a space
+  SUB r0, r0, #1; get position to begin placing new paddle
+  ;STRB #97, [r0]; place far left
+  MOV r2, #97
+  STRB r2, [r0]
+  ;STRB #98, [r0, #1]; place middle left
+  MOV r2, #98
+  STRB r2, [r0],#1
+  ;STRB #99, [r0, #2]; place middle
+  MOV r2, #99
+  STRB r2, [r0,#2]
+  ;STRB #100, [r0, #3]; place middle right
+  MOV r2, #100
+  STRB r2, [r0,#3]
+  ;STRB #101, [r0, #4]; place far right
+  MOV r2, #101
+  STRB r2, [r0,#4]
+  ;STRB #32, [r0, #5]; overwrite old far right with a space
+  MOV r2, #32
+  STRB r2, [r0,#5]
 
 ;ADD CURSOR UPDATES HERE FOR FINAL VERSION
-B update_paddle_end
+  B update_paddle_end
 
 move_paddle_right:
-CMP r1, #17; check the offset of the left of the paddle
-BGE update_paddle_end; if the paddle is already all the way right, skip to end
+  CMP r1, #17; check the offset of the left of the paddle
+  BGE update_paddle_end; if the paddle is already all the way right, skip to end
 
-SUB r0, r0, #1; get position to begin placing new paddle
-STRB #32, [r0]; overwrite old far left with a space
-STRB #97, [r0, #1]; place far left
-STRB #98, [r0, #2]; place middle left
-STRB #99, [r0, #3]; place middle
-STRB #100, [r0, #4]; place middle right
-STRB #101, [r0, #5]; place far right
+  SUB r0, r0, #1; get position to begin placing new paddle
+  ;STRB #32, [r0]; overwrite old far left with a space
+  MOV r2, #32
+  STRB r2, [r0]
+  ;STRB #97, [r0, #1]; place far left
+  MOV r2, #97
+  STRB r2, [r0,#1]
+  ;STRB #98, [r0, #2]; place middle left
+  MOV r2, #98
+  STRB r2, [r0,#2]
+  ;STRB #99, [r0, #3]; place middle
+  MOV r2, #99
+  STRB r2, [r0,#3]
+  ;STRB #100, [r0, #4]; place middle right
+  MOV r2, #100
+  STRB r2, [r0,#4]
+  ;STRB #101, [r0, #5]; place far right
+  MOV r2, #101
+  STRB r2, [r0,#5]
 
 ;ADD CURSOR UPDATES HERE FOR FINAL VERSION
-B update_paddle_end; would fall through but just in case I have to add functionality here later and forget
+  B update_paddle_end; would fall through but just in case I have to add functionality here later and forget
 
 
 ;make a place that saves the last character the ball landed on to check and update vector for ball as well as board (in case it overwrote a wall)
 
 update_paddle_end:
-POP {lr}
-MOV pc, lr
+  POP {lr}
+  MOV pc, lr
 
 
 update_ball:
-PUSH {lr}
-PUSH {r4,r5,r6}
+  PUSH {lr}
+  PUSH {r4,r5,r6}
 
-LDR r0, ptr_to_ball_x
-LDRB r0, [r0]; get x coord of ball
-LDR r1, ptr_to_ball_y
-LDRB r1, [r1]; get y coord of ball
-LDR r2, ptr_to_x_vector
-LDRB r3, [r2]; get x vector
-ADD r0, r0, r3; update x coord of ball
-LDR r4, ptr_to_y_vector
-LDRB r5, [r4]; get y vector
-ADD r1, r1, r5; update y coord of ball
+  LDR r0, ptr_to_ball_x
+  LDRB r0, [r0]; get x coord of ball
+  LDR r1, ptr_to_ball_y
+  LDRB r1, [r1]; get y coord of ball
+  LDR r2, ptr_to_x_vector
+  LDRB r3, [r2]; get x vector
+  ADD r0, r0, r3; update x coord of ball
+  LDR r4, ptr_to_y_vector
+  LDRB r5, [r4]; get y vector
+  ADD r1, r1, r5; update y coord of ball
 
 
-CMP r0, #0
-IT LE
-ADDLE r3, r3, #2 ;if vector -1 and colliding with left wall, make vector 1
+  CMP r0, #0
+  IT LE
+  ADDLE r3, r3, #2 ;if vector -1 and colliding with left wall, make vector 1
 
-CMP r0, #22
-IT GE
-SUBGE r3, r3, #2 ;if vector 1 and colliding with right wall, make vector -1
+  CMP r0, #22
+  IT GE
+  SUBGE r3, r3, #2 ;if vector 1 and colliding with right wall, make vector -1
 
-STRB r3, [r2] ;store new x vector
+  STRB r3, [r2] ;store new x vector
 
-CMP r1, #0
-BGT y_invert_skip ;don't invert y if not hitting top of stage
-;PUSH {r6}
-MOV r6, #1
-SUB r6, r6, #2 ;get -1 in r6
-MUL r5, r5, r6
-STRB r5, [r4] ;store negative y vector at y vector
-;POP {r6}
+  CMP r1, #0
+  BGT y_invert_skip ;don't invert y if not hitting top of stage
+  ;PUSH {r6}
+  MOV r6, #1
+  SUB r6, r6, #2 ;get -1 in r6
+  MUL r5, r5, r6
+  STRB r5, [r4] ;store negative y vector at y vector
+  ;POP {r6}
 
 y_invert_skip:
 
-;check for collision with color block, call wreckitralph in this case
-;check for collison with paddle, add second hidden paddle under real paddle to handle jumping through with angle of 60
-MUL r6, r1, #25
-ADD r6, r6, r0 ;get offset of ball destination
-LDRB r6, [r6] ;get character currently at ball destination
+  ;check for collision with color block, call wreckitralph in this case
+  ;check for collison with paddle, add second hidden paddle under real paddle to handle jumping through with angle of 60
+  MUL r6, r1, #25
+  ADD r6, r6, r0 ;get offset of ball destination
+  LDRB r6, [r6] ;get character currently at ball destination
 
-CMP r6, #114 ;check for "r" block hit
-BNE maybe_green
-MOV r6, #1
-SUB r6, r6, #2 ;get -1 in r6
-MUL r5, r5, r6
-STRB r5, [r4] ;store negative y vector at y vector
-PUSH {r0-r3}
-BL wreck_it_ralph ;make ralph update the ball color and RGB
-POP {r0-r3}}
-B mr_ralph_end
+  CMP r6, #114 ;check for "r" block hit
+  BNE maybe_green
+  MOV r6, #1
+  SUB r6, r6, #2 ;get -1 in r6
+  MUL r5, r5, r6
+  STRB r5, [r4] ;store negative y vector at y vector
+  PUSH {r0-r3}
+  BL wreck_it_ralph ;make ralph update the ball color and RGB
+  POP {r0-r3}}
+  B mr_ralph_end
 
 maybe_green:
-CMP r6, #103 ;check for "g" block hit
-BNE maybe_yellow
-MOV r6, #1
-SUB r6, r6, #2 ;get -1 in r6
-MUL r5, r5, r6
-STRB r5, [r4] ;store negative y vector at y vector
-PUSH {r0-r3}
-BL wreck_it_ralph ;make ralph update the ball color and RGB
-POP {r0-r3}}
-B mr_ralph_end
+  CMP r6, #103 ;check for "g" block hit
+  BNE maybe_yellow
+  MOV r6, #1
+  SUB r6, r6, #2 ;get -1 in r6
+  MUL r5, r5, r6
+  STRB r5, [r4] ;store negative y vector at y vector
+  PUSH {r0-r3}
+  BL wreck_it_ralph ;make ralph update the ball color and RGB
+  POP {r0-r3}}
+  B mr_ralph_end
 
 maybe_yellow:
-CMP r6, #121 ;check for "y" block hit
-BNE maybe_blue
-MOV r6, #1
-SUB r6, r6, #2 ;get -1 in r6
-MUL r5, r5, r6
-STRB r5, [r4] ;store negative y vector at y vector
-PUSH {r0-r3}
-BL wreck_it_ralph ;make ralph update the ball color and RGB
-POP {r0-r3}}
-B mr_ralph_end
+  CMP r6, #121 ;check for "y" block hit
+  BNE maybe_blue
+  MOV r6, #1
+  SUB r6, r6, #2 ;get -1 in r6
+  MUL r5, r5, r6
+  STRB r5, [r4] ;store negative y vector at y vector
+  PUSH {r0-r3}
+  BL wreck_it_ralph ;make ralph update the ball color and RGB
+  POP {r0-r3}}
+  B mr_ralph_end
 
 maybe_blue:
-CMP r6, #98 ;check for "b" block hit
-BNE maybe_purple
-MOV r6, #1
-SUB r6, r6, #2 ;get -1 in r6
-MUL r5, r5, r6
-STRB r5, [r4] ;store negative y vector at y vector
-PUSH {r0-r3}
-BL wreck_it_ralph ;make ralph update the ball color and RGB
-POP {r0-r3}}
-B mr_ralph_end
+  CMP r6, #98 ;check for "b" block hit
+  BNE maybe_purple
+  MOV r6, #1
+  SUB r6, r6, #2 ;get -1 in r6
+  MUL r5, r5, r6
+  STRB r5, [r4] ;store negative y vector at y vector
+  PUSH {r0-r3}
+  BL wreck_it_ralph ;make ralph update the ball color and RGB
+  POP {r0-r3}}
+  B mr_ralph_end
 
 maybe_purple:
-CMP r6, #112 ;check for "p" block hit
-BNE mr_ralph_end
-MOV r6, #1
-SUB r6, r6, #2 ;get -1 in r6
-MUL r5, r5, r6
-STRB r5, [r4] ;store negative y vector at y vector
-PUSH {r0-r3}
-BL wreck_it_ralph ;make ralph update the ball color and RGB
-POP {r0-r3}}
-B mr_ralph_end
+  CMP r6, #112 ;check for "p" block hit
+  BNE mr_ralph_end
+  MOV r6, #1
+  SUB r6, r6, #2 ;get -1 in r6
+  MUL r5, r5, r6
+  STRB r5, [r4] ;store negative y vector at y vector
+  PUSH {r0-r3}
+  BL wreck_it_ralph ;make ralph update the ball color and RGB
+  POP {r0-r3}}
+  B mr_ralph_end
 
 mr_ralph_end:
 
 ;make ralph update the ball color and RGB
 
-CMP r6, #97 ;check for fl hit
-BNE maybe_ml
-MOV r6, #1
-SUB r6, r6, #2
-STRB r6, [r2] ;store -1 at x vector
-STRB r6, [r4] ;store -1 at y vector
+  CMP r6, #97 ;check for fl hit
+  BNE maybe_ml
+  MOV r6, #1
+  SUB r6, r6, #2
+  STRB r6, [r2] ;store -1 at x vector
+  STRB r6, [r4] ;store -1 at y vector
 
 maybe_ml:
-CMP r6, #98 ;check for ml hit
-BNE maybe_m
-MOV r6, #1
-SUB r6, r6, #2
-STRB r6, [r2] ;store -1 at x vector
-SUB r6, r6, #1
-STRB r6, [r4] ;store -2 at y vector
+  CMP r6, #98 ;check for ml hit
+  BNE maybe_m
+  MOV r6, #1
+  SUB r6, r6, #2
+  STRB r6, [r2] ;store -1 at x vector
+  SUB r6, r6, #1
+  STRB r6, [r4] ;store -2 at y vector
 
 maybe_m:
-CMP r6, #99 ;check for m hit
-BNE maybe_mr
-MOV r6, #1
-SUB r6, r6, #2
-STRB r6, [r4] ;store -1 at y vector
-ADD r6, r6, #1
-STRB r6, [r2] ;store 0 at x vector
+  CMP r6, #99 ;check for m hit
+  BNE maybe_mr
+  MOV r6, #1
+  SUB r6, r6, #2
+  STRB r6, [r4] ;store -1 at y vector
+  ADD r6, r6, #1
+  STRB r6, [r2] ;store 0 at x vector
 
 maybe_mr:
-CMP r6, #100 ;check for mr hit
-BNE maybe_fr
-MOV r6, #1
-STRB r6, [r2] ;store 1 at x vector
-SUB r6, r6, #3
-STRB r6, [r4] ;store -2 at y vector
+  CMP r6, #100 ;check for mr hit
+  BNE maybe_fr
+  MOV r6, #1
+  STRB r6, [r2] ;store 1 at x vector
+  SUB r6, r6, #3
+  STRB r6, [r4] ;store -2 at y vector
 
 
 maybe_fr:
-CMP r6, #101 ;check for fr hit
-BNE paddle_check_end
-MOV r6, #1
-STRB r6, [r2] ;store 1 at x vector
-SUB r6, r6, #2
-STRB r6, [r4] ;store -1 at y vector
+  CMP r6, #101 ;check for fr hit
+  BNE paddle_check_end
+  MOV r6, #1
+  STRB r6, [r2] ;store 1 at x vector
+  SUB r6, r6, #2
+  STRB r6, [r4] ;store -1 at y vector
 
 
 paddle_check_end:
 
-;update the actual ball using new vectors and old position
+  ;update the actual ball using new vectors and old position
 
-LDR r0, ptr_to_ball_y
-LDRB r0, [r0] ;get y coord
-LDR r1, ptr_to_y_vector
-LDRB r1, [r1]
-ADD r0, r0, r1 ;get y coord plus y vector
-MUL r0, r0, #25 ;get y offset to new ball space
-LDR r1, ptr_to_ball_x
-LDRB r1, [r1] ;get x coord
-ADD r0, r0, r1 ;add x coord to y offset
-LDR ptr_to_x_vector
-LDRB r1, [r1] ;get x vector
-ADD r0, r0, r1 ;add x vector to get total offset to new ball space
-LDR r1, ptr_to_ball_color
-LDRB r1, [r1] ;load the new ball character
-STRB r1, [r0] ;store the new ball character at the new ball position
+  LDR r0, ptr_to_ball_y
+  LDRB r0, [r0] ;get y coord
+  LDR r1, ptr_to_y_vector
+  LDRB r1, [r1]
+  ADD r0, r0, r1 ;get y coord plus y vector
+  MUL r0, r0, #25 ;get y offset to new ball space
+  LDR r1, ptr_to_ball_x
+  LDRB r1, [r1] ;get x coord
+  ADD r0, r0, r1 ;add x coord to y offset
+  LDR ptr_to_x_vector
+  LDRB r1, [r1] ;get x vector
+  ADD r0, r0, r1 ;add x vector to get total offset to new ball space
+  LDR r1, ptr_to_ball_color
+  LDRB r1, [r1] ;load the new ball character
+  STRB r1, [r0] ;store the new ball character at the new ball position
 
 
 
-;update the actual ball using new vectors and old positio
-
-POP {r4,r5,r6}
-POP {lr}
-MOV pc, lr
+  POP {r4,r5,r6}
+  POP {lr}
+  MOV pc, lr
 
 ;handle_col:
 ;replace the last_col with whatever is hit
