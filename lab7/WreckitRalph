@@ -2,8 +2,7 @@
 ;Update ball color -> ptr_to_ball_color
 ;update RGB LED to most recent color
 ;Given x coord of brick in r0 and y coord of brick in r1
-;Example Coords: X = 3 Y = 4
-WreckitRalph:
+wreck_it_ralph:
 
     PUSH {lr}
     PUSH {r0,r1,r2,r3}
@@ -34,7 +33,7 @@ redBall:
 
     ;updates ptr in mem for ball color
     ldr r0, ptr_to_ball_color
-    MOV r1, #114
+    MOV r1, #82
     STRB r1, [r0]
     ;illuminates RGB to color of recently hit brick
     MOV r0, #1
@@ -48,7 +47,7 @@ greenBall:
 
     ;updates ptr in mem for ball color
     ldr r0, ptr_to_ball_color
-    MOV r1, #103
+    MOV r1, #71
     STRB r1, [r0]
     ;illuminates RGB to color of recently hit brick
     MOV r0, #7
@@ -64,7 +63,7 @@ blueBall:
 
     ;updates ptr in mem for ball color
     ldr r0, ptr_to_ball_color
-    MOV r1, #98
+    MOV r1, #66
     STRB r1, [r0]
     ;illuminates RGB to color of recently hit brick
     MOV r0, #2
@@ -79,7 +78,7 @@ yellowBall:
 
     ;updates ptr in mem for ball color
     ldr r0, ptr_to_ball_color
-    MOV r1, #121
+    MOV r1, #89
     STRB r1, [r0]
     ;illuminates RGB to color of recently hit brick
     MOV r0, #6
@@ -94,7 +93,7 @@ purpleBall:
 
     ;updates ptr in mem for ball color
     ldr r0, ptr_to_ball_color
-    MOV r1, #112
+    MOV r1, #86
     STRB r1, [r0]
     ;illuminates RGB to color of recently hit brick
     MOV r0, #3
