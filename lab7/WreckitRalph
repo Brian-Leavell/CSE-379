@@ -2,8 +2,7 @@
 ;Update ball color -> ptr_to_ball_color
 ;update RGB LED to most recent color
 ;Given x coord of brick in r0 and y coord of brick in r1
-;Example Coords: X = 3 Y = 4
-WreckitRalph:
+wreck_it_ralph:
 
     PUSH {lr}
     PUSH {r0,r1,r2,r3}
