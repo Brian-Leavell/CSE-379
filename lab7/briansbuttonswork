@@ -35,6 +35,10 @@ pause_prompt: .string "PAUSED", 0
 resume_prompt:	.string "       ", 0
 lvl_count: .byte 0	;potentially keep as 1 so if no buttons are pushed 1 row is printed
 brick_count: .byte 0
+start_prompt:	.string "Breakout out of the Matrix!", 0
+prompt:	.string "Hold down the push buttons to select the number of rows, then press "S" to start!", 0
+gameover_prompt:   .string "You didn't escape the Matrix :(", 0
+score_prompt:	.string "Score: ", 0
 
 
 bored: .string  "+---------------------+", 0xA, 0xD
@@ -102,6 +106,12 @@ ptr_to_y_vector: .word y_vector
 ptr_to_ball_color: .word ball_color
 ptr_to_pause_prompt: .word pause_prompt
 ptr_to_resume_prompt:	.word resume_prompt
+ptr_to_start_prompt:	.word start_prompt
+ptr_to_gameover_prompt:	.word gameover_prompt
+ptr_to_score_prompt:	.word score_prompt
+ptr_to_prompt:	.word prompt
+ptr_to_score:	.word score
+ptr_to_score_prompt:   .word score_prompt
 ptr_to_lvl_count: .word lvl_count
 ptr_to_brick_count: .word brick_count
 ptr_to_plus_reset: .word plus_reset
@@ -431,8 +441,10 @@ update_paddle_end:
 update_ball:
   PUSH {lr}
   PUSH {r4,r5,r6,r7}
+  
+  BL update_OOB	;check if ball went out of bounds
 
-	MOV r7, #25
+  MOV r7, #25
   LDR r0, ptr_to_ball_x
   LDRB r0, [r0]; get x coord of ball
   LDR r1, ptr_to_ball_y
@@ -1542,9 +1554,16 @@ toy_maker:
     ;load pointer to determine how many rows to print
     ldr r0, ptr_to_lvl_count
     LDRB r4, [r0]
+    CMP r4, #0
+    BEQ default
     ldr r5, ptr_to_bored
     ADD r5, r5, #51 ;offset for where to start printing bricks
+    B levelmaker
 
+default:
+    ADD r4, r4, #1	;deafult row count is 1
+    ldr r5, ptr_to_bored
+    ADD r5, r5, #51 ;offset for where to start printing bricks
 
 ;Loop will print out however many rows that the user selected
 levelmaker:
@@ -1564,9 +1583,9 @@ creation:
     B brickcolor
 
 prelevelmaker:
-	ldr r0, ptr_to_brick_count	;resets brick count
-	MOV r1, #0
-	STRB r1, [r0]
+    ldr r0, ptr_to_brick_count	;resets brick count
+    MOV r1, #0
+    STRB r1, [r0]
     ADD r5, r5, #4  ;ensures we start at new row below
     B levelmaker
 
