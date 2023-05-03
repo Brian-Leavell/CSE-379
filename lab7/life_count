@@ -2,10 +2,10 @@ life_count:
 
   PUSH {lr}
   PUSH {r0,r1,r2,r3}
-  
+
   ldr r0, ptr_to_lives
   LDRB r1, [r0]		;stores the number of lives the user currently has into r1
-  
+
   ;below checks how many lives they have left and will illuminate that many LEDs based on the number
   CMP r1, #4
   BEQ 4_lives
@@ -17,33 +17,33 @@ life_count:
   BEQ 1_life
   CMP r1, #0
   BEQ ded
-  
-  
+
+
 4_lives:
   MOV r0, #15	;turns on all 4 LEDs
   BL illuminate_LEDs
-  B end
+  B lifeend
 
 3_lives:
   MOV r0, #7	;turns on 3 LEDs
   BL illuminate_LEDs
-  B end
-  
+  B lifeend
+
 2_lives:
   MOV r0, #3	;turns on 2 LEDs
   BL illuminate_LEDs
-  B end 
+  B lifeend
 
 1_life:
   MOV r0, #1	;turns on 1 LED
   BL illuminate_LEDs
-  B end
-  
+  B lifeend
+
 ded:
   MOV r0, #0	;turns off all 4 LEDs
   BL illuminate_LEDs
 
-end:
+lifeend:
   POP {r0,r1,r2,r3}
   POP {lr}
   MOV pc, lr
