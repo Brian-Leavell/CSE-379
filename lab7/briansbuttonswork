@@ -133,10 +133,10 @@ run:
 	BL output_board
 
 lab7loop:
-	LDR r0, ptr_to_ball_y
+	LDR r0, ptr_to_lives
 	LDRB r0, [r0]
-	CMP r0, #17
-	BGE lab7exit
+	CMP r0, #0
+	BEQ gameover
 	B lab7loop
 lab7exit:
 	POP {lr}
@@ -991,13 +991,6 @@ pause_it:
 
 resume:
 
-  ;Enables timer by writing a 1 to bit 0
-  MOV r0, #0x0000
-  MOVT r0, #0x4003
-  LDRB r1, [r0, #0x00C]
-  ORR r1, r1, #1
-  STRB r1, [r0, #0x00C]
-
  ;Turns the RGB LED off
   MOV r0, #0
   BL illuminate_RGB_LED
@@ -1006,15 +999,19 @@ resume:
   MOV r1, #0
   STRB r1, [r0]
 
-  ;ldr r0, ptr_to_resume_prompt   ;All spaces which will remove the PAUSED from the screen
   MOV r0, #0xC
   BL output_character
   ldr r0, ptr_to_bored
   ;ADD r1, r1, #10       ;Offset to where prompt is on the board
   ;STR r0, [r1]            ;Clears pause from the screen
   BL output_board
-
-
+  
+  ;Enables timer by writing a 1 to bit 0
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  ORR r1, r1, #1
+  STRB r1, [r0, #0x00C]
 
 end:
   	POP {r0,r1}
@@ -1317,7 +1314,7 @@ illuminate_RGB_LED:
 wreck_it_ralph:
 
     PUSH {lr}
-    PUSH {r0,r1,r2,r3}
+    PUSH {r0,r1,r2,r3,r4,r5}
 
     MOV r2, #25 ;used for y coord to navigate board
 
@@ -1418,6 +1415,13 @@ purpleBall:
 imGonnaWreckit:
 
 	POP {r0,r1}
+	
+    ;increment score
+    ldr r4, ptr_to_score
+    LDRB r5, [r4]
+    ADD r5, r5, #1
+    STRB r5, [r4]
+    
     ;Checks to see what brick was hit based on X coordinate
     CMP r0, #3
     BLE brickOne
@@ -1540,7 +1544,7 @@ brickSeven:
     STRB r1, [r2], #1
 
 endRalph:
-    POP {r2,r3}
+    POP {r2,r3,r4,r5}
     POP {lr}
     MOV pc, lr
 
@@ -1860,8 +1864,37 @@ startupEnd:
     POP {r0,r1,r2,r3,r4}
     POP {lr}
     MOV pc, lr
+    
+    
+;-------------------------------------------------------------------------
+ update_OOB:
+
+    PUSH {lr}
+    PUSH {r0,r1}
+
+    ldr r0, ptr_to_ball_y
+    LDRB r1, [r0]
+    CMP r1, #17     ;Bottom of board, player did not hit ball in time
+    BEQ is_OOB
+    B OOBend           ;If not then no lives are lost
+
+;Ball has gone out of bounds
+is_OOB:
+
+    ;player loses a life
+    ldr r0, ptr_to_lives
+    LDRB r1, [r0]
+    SUB r1, r1, #1
+    STRB r1, [r0]
+
+OOBend:
+    BL life_count   ;update number of lives user has left
+    POP {r0,r1}
+    POP {lr}
+    MOV pc, lr
 
 ;------------------------------------------------------------------------------
+
 ;prints final prompt, print final score, end program
 gameover:
 
