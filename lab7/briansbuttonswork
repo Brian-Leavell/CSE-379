@@ -986,11 +986,14 @@ pause_it:
   MOV r1, #1
   STR r1, [r0]
 
-  ldr r0, ptr_to_pause_prompt
-  ldr r1, ptr_to_bored
-  ADD r1, r1, #10  ;Offset to place prompt towards the bottom of the screen
-  STR r0, [r1]  ;Writes pause to the screen
+  ;ldr r0, ptr_to_pause_prompt
+  ;ldr r1, ptr_to_bored
+  ;ADD r1, r1, #10  ;Offset to place prompt towards the bottom of the screen
+  ;STR r0, [r1]  ;Writes pause to the screen
+  ldr r0, ptr_to_bored
   BL output_board
+  ldr r0, ptr_to_pause_prompt
+  BL output_string
   B end
 
 
@@ -1008,8 +1011,6 @@ resume:
   MOV r0, #0xC
   BL output_character
   ldr r0, ptr_to_bored
-  ;ADD r1, r1, #10       ;Offset to where prompt is on the board
-  ;STR r0, [r1]            ;Clears pause from the screen
   BL output_board
   
   ;Enables timer by writing a 1 to bit 0
@@ -1043,10 +1044,11 @@ Timer_Handler:
 	ORR r1, r1, #1
 	STRB r1, [r0, #0x024]
 	
+	;checks to see if all bricks have been cleared to potentially speed up timer
 	BL advance_check
 	ldr r0, ptr_to_lvlup_bool
 	LDRB r0, [r0]
-	CMP r0, #1
+	CMP r0, #1	;level has been cleared successfully
 	BEQ lvlupstart
 	B continue
 	
@@ -1054,7 +1056,7 @@ lvlupstart:
 	ldr r0, ptr_to_lvlup_bool
 	MOV r1, #0
 	STRB r1, [r0]
-	BL levelup
+	BL levelup	;falls through to continue after
 
 
 continue:
