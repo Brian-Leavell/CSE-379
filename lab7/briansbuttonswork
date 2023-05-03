@@ -39,6 +39,7 @@ start_prompt:	.string "Breakout out of the Matrix!", 0
 prompt:	.string "Hold down the push buttons to select the number of rows, then press "S" to start!", 0
 gameover_prompt:   .string "You didn't escape the Matrix :(", 0
 score_prompt:	.string "Score: ", 0
+lvlup_bool:	.byte 0
 
 
 bored: .string  "+---------------------+", 0xA, 0xD
@@ -115,6 +116,7 @@ ptr_to_score_prompt:   .word score_prompt
 ptr_to_lvl_count: .word lvl_count
 ptr_to_brick_count: .word brick_count
 ptr_to_plus_reset: .word plus_reset
+ptr_to_lvlup_bool:	.word lvlup_bool
 
 lab7:
 	PUSH {lr}
@@ -1036,7 +1038,22 @@ Timer_Handler:
 	LDRB r1, [r0, #0x024]
 	ORR r1, r1, #1
 	STRB r1, [r0, #0x024]
+	
+	BL advance_check
+	ldr r0, ptr_to_lvlup_bool
+	LDRB r0, [r0]
+	CMP r0, #1
+	BEQ lvlupstart
+	B continue
+	
+lvlupstart:
+	ldr r0, ptr_to_lvlup_bool
+	MOV r1, #0
+	STRB r1, [r0]
+	BL levelup
 
+
+continue:
 	BL update_paddle
 	BL update_ball
 	MOV r0, #0xC
@@ -1894,6 +1911,67 @@ OOBend:
     MOV pc, lr
 
 ;------------------------------------------------------------------------------
+;checks to see if all bricks are cleared
+advance_check:
+
+    PUSH {lr}
+    PUSH {r0,r1,r2,r3}
+
+    ldr r0, ptr_to_lvl_count
+    LDRB r0, [r0]
+    CMP r0, #1
+    BEQ onerowCheck
+    CMP r0, #2
+    BEQ tworowCheck
+    CMP r0, #3
+    BEQ threerowCheck
+    CMP r0, #4
+    BEQ fourrowCheck
+    B advanceEnd    ;error occurred
+
+
+onerowCheck:
+    ldr r0, ptr_to_score
+    LDRB r0, [r0]
+    CMP r0, #7
+    BEQ advanceEnd
+    B pleaseleave
+
+
+tworowCheck:
+    ldr r0, ptr_to_score
+    LDRB r0, [r0]
+    CMP r0, #14
+    BEQ advanceEnd
+    B pleaseleave
+
+threerowCheck:
+    ldr r0, ptr_to_score
+    LDRB r0, [r0]
+    CMP r0, #21
+    BEQ advanceEnd
+    B pleaseleave
+
+
+fourrowCheck:
+    ldr r0, ptr_to_score
+    LDRB r0, [r0]
+    CMP r0, #28
+    BEQ advanceEnd
+    B pleaseleave
+
+
+advanceEnd:
+    ldr r0, ptr_to_lvlup_bool
+    MOV r1, #1
+    STRB r1, [r0]
+
+pleaseleave:
+    POP {r0,r1,r2,r3}
+    POP {lr}
+    MOV pc, lr
+    
+;----------------------------------------------------------------------------
 
 ;prints final prompt, print final score, end program
 gameover:
