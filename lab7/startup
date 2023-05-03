@@ -1,0 +1,31 @@
+;menu at start, user holds push buttons for desired lvls
+;and presses S key to start
+startup:
+
+    PUSH {lr}
+    PUSH {r0,r1,r2,r3,r4}
+
+    ;startup prompt menu given to user
+    ldr r0, ptr_to_start_prompt
+    LDR r0, [r0]
+    BL output_string
+    ldr r0, ptr_to_prompt
+    LDR r0, [r0]
+    BL output_string
+
+standBy:
+    BL read_character
+    CMP r0, #115
+    BEQ startupEnd
+    B standBy
+
+
+
+startupEnd:
+    ;clear screen before we start
+    MOV r0, #0xC
+    BL output_character
+
+    POP {r0,r1,r2,r3,r4}
+    POP {lr}
+    MOV pc, lr
