@@ -1,0 +1,25 @@
+;prints final prompt, print final score, end program
+gameover:
+
+    PUSH {lr}
+    PUSH {r0,r1,r2,r3}
+
+    MOV r0, #0x000C;disable the timer
+	MOVT r0, #0x4003
+	MOV r1, #0
+	STRB r1, [r0]
+
+
+	MOV r0, #0xC;clear screen
+	BL output_character
+
+    ldr r0, ptr_to_gameover_prompt
+    BL output_string
+    ldr r0, ptr_to_finalscore_prompt
+    BL output_string
+    ldr r0, ptr_to_score
+    BL output_string
+
+gameEnd:
+    POP {lr}
+    POP {r0,r1,r2,r3}
