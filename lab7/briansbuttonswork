@@ -23,6 +23,7 @@ plus_reset: .string 27, "[37;40m+", 0 ;
 
 score: .byte 0
 lvlupscore:	.byte 0
+speedup_count:	.byte 0
 lives: .byte 4
 pause_bool: .byte 0
 paddle_offset: .byte 8
@@ -119,6 +120,7 @@ ptr_to_lvl_count: .word lvl_count
 ptr_to_brick_count: .word brick_count
 ptr_to_plus_reset: .word plus_reset
 ptr_to_lvlup_bool:	.word lvlup_bool
+ptr_to_speedup_count:	.word speedup_count
 
 lab7:
 	PUSH {lr}
@@ -2007,16 +2009,23 @@ levelup:
     LDRB r1, [r0, #0x00C]
     BFC r1, #0, #1
     STRB r1, [r0, #0x00C]
+   
+    ldr r0, ptr_to_speedup_count
+    LDRB r1, [r0]
+    CMP r1, #4
+    BEQ dont_speed	;4 lvls already completed, dont speed up ball again
 
     ;Address that holds time interval of Timer
-  	MOV r0, #0x0
-  	MOVT r0, #0x4003
+    MOV r0, #0x0
+    MOVT r0, #0x4003
 
-  	;Divide by 2 so * moves twice as fast
-  	LDR r1, [r0, #0x028]
-  	LSR r1, r1, #1
-  	STR r1, [r0, #0x028]
-
+    ;Divide by 2 so * moves twice as fast
+    LDR r1, [r0, #0x028]
+    LSR r1, r1, #1
+    STR r1, [r0, #0x028]
+    
+ ;program jumps here once we have completed 4 levels so speed of ball doesnt increase  
+dontspeed:
     ;reset lvlup score since new bricks are printed
     ldr r0, ptr_to_lvlupscore
     MOV r1, #0
