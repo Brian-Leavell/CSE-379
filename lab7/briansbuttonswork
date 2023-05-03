@@ -1973,6 +1973,56 @@ pleaseleave:
     
 ;----------------------------------------------------------------------------
 
+levelup:
+
+    PUSH {lr}
+    PUSH {r0,r1,r2,r3}
+
+    ;Disables timer by writing a 0 to bit 0
+    MOV r0, #0x0000
+    MOVT r0, #0x4003
+    LDRB r1, [r0, #0x00C]
+    BFC r1, #0, #1
+    STRB r1, [r0, #0x00C]
+
+    ;Address that holds time interval of Timer
+  	MOV r0, #0x0
+  	MOVT r0, #0x4003
+
+  	;Divide by 2 so * moves twice as fast
+  	LDR r1, [r0, #0x028]
+  	LSR r1, r1, #1
+  	STR r1, [r0, #0x028]
+
+     ;Enables timer by writing a 1 to bit 0
+    MOV r0, #0x0000
+    MOVT r0, #0x4003
+    LDRB r1, [r0, #0x00C]
+    ORR r1, r1, #1
+    STRB r1, [r0, #0x00C]
+
+    BL toymaker ;make new board
+    ;reset score maybe or add more to lvlup check
+
+    ;reset ball position for new lvl
+    ldr r0, ptr_to_ball_x
+    MOV r1, #10
+    STRB r1, [r0]
+    ldr r0, ptr_to_ball_y
+    MOV r1, #8
+    STRB r1, [r0]
+    ldr r0, ptr_to_x_vector
+    MOV r1, #0
+    STRB r1, [r0]
+    ldr r0, ptr_to_y_vetor
+    MOV r1, #1
+    STRB r1, [r0]
+
+
+    POP {r0,r1,r2,r3}
+    POP {lr}
+    MOV pc, lr
+;--------------------------------------------------------------------------------------------
 ;prints final prompt, print final score, end program
 gameover:
 
