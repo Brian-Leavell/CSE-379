@@ -114,7 +114,7 @@ lab7:
 	bl uart_interrupt_init
 	BL gpio_interrupt_init
 	BL Timer_Init
-	;put functionality here polling for user to press "S" after holding LED buttons
+	BL startup	;will return once user hits S key
 	BL lvls_counter
 
 run:
@@ -1807,6 +1807,40 @@ lifeend:
   POP {r0,r1,r2,r3}
   POP {lr}
   MOV pc, lr
+  
+  
+;-----------------------------------------------------------------------------------------  
+;menu at start, user holds push buttons for desired lvls
+;and presses S key to start
+startup:
+
+    PUSH {lr}
+    PUSH {r0,r1,r2,r3,r4}
+
+    ;startup prompt menu given to user
+    ldr r0, ptr_to_start_prompt
+    LDR r0, [r0]
+    BL output_string
+    ldr r0, ptr_to_prompt
+    LDR r0, [r0]
+    BL output_string
+
+standBy:
+    BL read_character
+    CMP r0, #115
+    BEQ startupEnd
+    B standBy
+
+
+
+startupEnd:
+    ;clear screen before we start
+    MOV r0, #0xC
+    BL output_character
+
+    POP {r0,r1,r2,r3,r4}
+    POP {lr}
+    MOV pc, lr
 
 ;---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
