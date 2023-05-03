@@ -22,6 +22,7 @@ purpleball: .string 27, "[35m*", 27, "[37m", 0 ;magenta fore with space characte
 plus_reset: .string 27, "[37;40m+", 0 ;
 
 score: .byte 0
+lvlupscore:	.byte 0
 lives: .byte 4
 pause_bool: .byte 0
 paddle_offset: .byte 8
@@ -112,6 +113,7 @@ ptr_to_gameover_prompt:	.word gameover_prompt
 ptr_to_score_prompt:	.word score_prompt
 ptr_to_prompt:	.word prompt
 ptr_to_score:	.word score
+ptr_to_lvlupscore:	.word lvlupscore
 ptr_to_score_prompt:   .word score_prompt
 ptr_to_lvl_count: .word lvl_count
 ptr_to_brick_count: .word brick_count
@@ -1433,11 +1435,16 @@ imGonnaWreckit:
 
 	POP {r0,r1}
 	
-    ;increment score
+    ;increment score nad lvlup score
     ldr r4, ptr_to_score
     LDRB r5, [r4]
     ADD r5, r5, #1
     STRB r5, [r4]
+    ldr r4, ptr_to_lvlupscore
+    LDRB r5, [r4]
+    ADD r5, r5, #1
+    STRB r5, [r4]
+    
     
     ;Checks to see what brick was hit based on X coordinate
     CMP r0, #3
@@ -1931,7 +1938,7 @@ advance_check:
 
 
 onerowCheck:
-    ldr r0, ptr_to_score
+    ldr r0, ptr_to_lvlupscore
     LDRB r0, [r0]
     CMP r0, #7
     BEQ advanceEnd
@@ -1939,14 +1946,14 @@ onerowCheck:
 
 
 tworowCheck:
-    ldr r0, ptr_to_score
+    ldr r0, ptr_to_lvlupscore
     LDRB r0, [r0]
     CMP r0, #14
     BEQ advanceEnd
     B pleaseleave
 
 threerowCheck:
-    ldr r0, ptr_to_score
+    ldr r0, ptr_to_lvlupscore
     LDRB r0, [r0]
     CMP r0, #21
     BEQ advanceEnd
@@ -1954,7 +1961,7 @@ threerowCheck:
 
 
 fourrowCheck:
-    ldr r0, ptr_to_score
+    ldr r0, ptr_to_lvlupscore
     LDRB r0, [r0]
     CMP r0, #28
     BEQ advanceEnd
@@ -1993,6 +2000,11 @@ levelup:
   	LDR r1, [r0, #0x028]
   	LSR r1, r1, #1
   	STR r1, [r0, #0x028]
+
+    ;reset lvlup score since new bricks are printed
+    ldr r0, ptr_to_lvlupscore
+    MOV r1, #0
+    STRB r1, [r0]
 
      ;Enables timer by writing a 1 to bit 0
     MOV r0, #0x0000
