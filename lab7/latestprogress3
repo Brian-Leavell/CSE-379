@@ -1,0 +1,2314 @@
+.data
+
+red: .string 27, "[41m ", 27, "[40m", 0 ;red fore with space character
+green: .string 27, "[42m ", 27, "[40m", 0 ;green fore with space character
+yellow: .string 27, "[43m ", 27, "[40m", 0 ;yellow fore with space character
+blue: .string 27, "[44m ", 27, "[40m", 0 ;blue fore with space character
+purple: .string 27, "[45m ", 27, "[40m", 0 ;magenta fore with space character
+death: .string "-", 0 ;print out a dash for the apearance of the death squares
+
+farleft: .string "-", 0 ;print out a dash for the apearance of the death squares
+middleleft: .string "-", 0 ;print out a dash for the apearance of the death squares
+middle: .string "-", 0 ;print out a dash for the apearance of the death squares
+middleright: .string "-", 0 ;print out a dash for the apearance of the death squares
+farright: .string "-", 0 ;print out a dash for the apearance of the death squares
+
+redball: .string 27, "[31m*", 27, "[37m", 0 ;red fore with space character
+greenball: .string 27, "[32m*", 27, "[37m", 0 ;green fore with space character
+yellowball: .string 27, "[33m*", 27, "[37m", 0 ;yellow fore with space character
+blueball: .string 27, "[34m*", 27, "[37m", 0 ;blue fore with space character
+purpleball: .string 27, "[35m*", 27, "[37m", 0 ;magenta fore with space character
+
+plus_reset: .string 27, "[37;40m+", 0 ;
+
+score: .byte 0
+lvlupscore:	.byte 0
+speedup_count:	.byte 0
+lives: .byte 4
+pause_bool: .byte 0
+paddle_offset: .byte 9
+paddle_direction: .byte 0
+ball_x: .byte 11
+ball_y: .byte 8
+x_vector: .byte 0
+y_vector: .byte 1
+ball_color: .byte 42
+pause_prompt: .string "PAUSED", 0
+resume_prompt:	.string "       ", 0
+lvl_count: .byte 0	;potentially keep as 1 so if no buttons are pushed 1 row is printed
+brick_count: .byte 0
+start_prompt:	.string "Escape the Matrix!", 0xA, 0xD, 0
+prompt:	.string "Hold down the push buttons to select the number of rows, then press S to start!", 0
+gameover_prompt:   .string "You didn't escape the Matrix :(", 0xA, 0xD, 0
+score_prompt:	.string "Score: ", 0
+lvlup_bool:	.byte 0
+finalscore_prompt:	.string "Final Score: ",0
+old_color: .byte 0
+score_str:	.string "                  ", 0
+last_button_pressed: .byte 0
+spedup_speed:	.word 320000
+
+
+bored: .string  "+---------------------+", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|        aacee        |", 0xA, 0xD
+.string        "+---------------------+", 0xA, 0xD, 0x0
+
+template_bored:.string  "+---------------------+", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|                     |", 0xA, 0xD
+.string        "|        aacee        |", 0xA, 0xD
+.string        "+---------------------+", 0xA, 0xD, 0x0
+
+
+
+
+
+
+.text
+
+.global lab7
+.global uart_interrupt_init
+.global gpio_interrupt_init
+.global UART0_Handler
+.global Switch_Handler
+.global Timer_Handler		; This is needed for Lab #6
+
+;ptr_to_bored: .word bored
+ptr_to_death: .word death
+
+ptr_to_red: .word red
+ptr_to_green: .word green
+ptr_to_yellow: .word yellow
+ptr_to_blue: .word blue
+ptr_to_purple: .word purple
+
+ptr_to_redball: .word redball
+ptr_to_greenball: .word greenball
+ptr_to_yellowball: .word yellowball
+ptr_to_blueball: .word blueball
+ptr_to_purpleball: .word purpleball
+
+ptr_to_farleft: .word farleft
+ptr_to_middleleft: .word middleleft
+ptr_to_middle: .word middle
+ptr_to_middleright: .word middleright
+ptr_to_farright: .word farright
+
+ptr_to_old_color:	.word old_color
+ptr_to_lives: .word lives
+ptr_to_pause_bool: .word pause_bool
+ptr_to_paddle_offset: .word paddle_offset
+ptr_to_paddle_direction: .word paddle_direction
+ptr_to_ball_x: .word ball_x
+ptr_to_ball_y: .word ball_y
+ptr_to_x_vector: .word x_vector
+ptr_to_y_vector: .word y_vector
+ptr_to_ball_color: .word ball_color
+ptr_to_pause_prompt: .word pause_prompt
+ptr_to_resume_prompt:	.word resume_prompt
+ptr_to_start_prompt:	.word start_prompt
+ptr_to_gameover_prompt:	.word gameover_prompt
+ptr_to_score_prompt:	.word score_prompt
+ptr_to_prompt:	.word prompt
+ptr_to_score:	.word score
+ptr_to_lvlupscore:	.word lvlupscore
+ptr_to_lvl_count: .word lvl_count
+ptr_to_brick_count: .word brick_count
+ptr_to_plus_reset: .word plus_reset
+ptr_to_lvlup_bool:	.word lvlup_bool
+ptr_to_speedup_count:	.word speedup_count
+ptr_to_finalscore_prompt:	.word finalscore_prompt
+ptr_to_score_str:	.word	score_str
+ptr_to_last_button_pressed: .word last_button_pressed
+ptr_to_template_bored: .word template_bored
+ptr_to_spedup_speed:	.word spedup_speed
+ptr_to_bored: .word bored
+
+lab7:
+PUSH {lr}
+
+bl uart_init
+bl gpio_btn_and_LEDS_init
+bl uart_interrupt_init
+BL gpio_interrupt_init
+
+mov r0, #0xC
+BL output_character
+
+ldr r0, ptr_to_start_prompt
+BL output_string
+ldr r0, ptr_to_prompt
+BL output_string
+
+wait_for_start:
+ldr r0, ptr_to_last_button_pressed
+ldrb r0, [r0]
+CMP r0, #115
+BNE wait_for_start
+
+LDR r0, ptr_to_template_bored
+LDR r1, ptr_to_bored
+BL copy_string
+
+BL Timer_Init
+;	BL startup	;will return once user hits S key
+BL lvls_counter
+BL life_count
+
+run:
+BL toy_maker
+LDR r0, ptr_to_bored
+BL output_board
+
+lab7loop:
+LDR r0, ptr_to_lives
+LDRB r0, [r0]
+CMP r0, #0
+BEQ gameover
+B lab7loop
+lab7exit:
+POP {lr}
+MOV pc, lr
+
+output_board:
+
+PUSH {lr};prints the null terminated string starting at address in r0 to standard output
+MOV r1, r0; put mem adress in r1 since r0 will be changed
+;MOV r0, #0xC
+;BL output_character
+
+OBloop:
+LDRB r0, [r1]; get byte at mem pointer
+
+CMP r0, #0; check to see if null byte hit
+BEQ OBend
+
+CMP r0, #114; check to see if "r" hit
+BEQ dored
+
+CMP r0, #103; check to see if "g" hit
+BEQ dogreen
+
+CMP r0, #121; check to see if "y" hit
+BEQ doyellow
+
+CMP r0, #98; check to see if "b" hit
+BEQ doblue
+
+CMP r0, #112; check to see if "p" hit
+BEQ dopurple
+
+CMP r0, #120; check to see if "x" hit
+BEQ dodeath
+
+CMP r0, #97; check to see if "a" hit
+BEQ dofl
+
+CMP r0, #108; check to see if "l" hit
+BEQ doml
+
+CMP r0, #99; check to see if "c" hit
+BEQ dom
+
+CMP r0, #100; check to see if "d" hit
+BEQ domr
+
+CMP r0, #101; check to see if "e" hit
+BEQ dofr
+
+CMP r0, #82; check to see if "R" hit
+BEQ doredball
+
+CMP r0, #71; check to see if "G" hit
+BEQ dogreenball
+
+CMP r0, #89; check to see if "Y" hit
+BEQ doyellowball
+
+CMP r0, #66; check to see if "B" hit
+BEQ doblueball
+
+CMP r0, #86; check to see if "V" hit
+BEQ dopurpleball
+
+CMP r0, #43; check to see if "+" hit
+BEQ do_plus_reset
+
+PUSH {r1}
+BL output_character
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dored:
+LDR r0, ptr_to_red
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dogreen:
+LDR r0, ptr_to_green
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doyellow:
+LDR r0, ptr_to_yellow
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doblue:
+LDR r0, ptr_to_blue
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dopurple:
+LDR r0, ptr_to_purple
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dodeath:
+LDR r0, ptr_to_death
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+
+dofl:
+LDR r0, ptr_to_farleft
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doml:
+LDR r0, ptr_to_middleleft
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dom:
+LDR r0, ptr_to_middle
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+domr:
+LDR r0, ptr_to_middleright
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dofr:
+LDR r0, ptr_to_farright
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doredball:
+LDR r0, ptr_to_redball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dogreenball:
+LDR r0, ptr_to_greenball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doyellowball:
+LDR r0, ptr_to_yellowball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+doblueball:
+LDR r0, ptr_to_blueball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+dopurpleball:
+LDR r0, ptr_to_purpleball
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer todd next digit
+B OBloop
+
+do_plus_reset:
+LDR r0, ptr_to_plus_reset
+PUSH {r1}
+BL output_string
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OBloop
+
+OBend:
+;MOV r0, #0xD; if null byte, load value for "enter" instead
+BL output_character
+POP {lr}
+MOV pc, lr
+
+
+update_paddle:
+PUSH {lr}
+
+LDR r0, ptr_to_bored ;load the pointer to the beginning of the board
+ADD r0, r0, #400 ;25 per line, 16 lines to get to beginning of paddle line
+LDR r1, ptr_to_paddle_offset; get address storing offset to far left of paddle
+LDRB r1, [r1] ;get the offset from the beginning of the line to the far left of the paddle
+ADD r0, r0, r1; get the position of the far left of the paddle
+LDR r2, ptr_to_paddle_direction; load address of which way the paddle is supposed to move
+LDRB r2, [r2]; load ASCII value of direction to move paddle in
+
+CMP r2, #97
+BEQ move_paddle_left ;If last pressed a, move left functionality
+CMP r2, #100
+BEQ move_paddle_right ;If last pressed d, move right functionality
+B update_paddle_end
+
+;make sure to take into account that if the paddle is all the way left it should
+;not move left, if all the way right it should not move right.
+
+move_paddle_left:
+CMP r1, #1; check the offset of the left of the paddle
+BLE update_paddle_end; if the paddle is already all the way left, skip to end
+
+SUB r0, r0, #1; get position to begin placing new paddle
+;STRB #97, [r0]; place far left
+MOV r2, #97
+STRB r2, [r0]
+;STRB #98, [r0, #1]; place middle left
+;MOV r2, #108
+mov r2, #97
+STRB r2, [r0,#1]
+;STRB #99, [r0, #2]; place middle
+MOV r2, #99
+STRB r2, [r0,#2]
+;STRB #100, [r0, #3]; place middle right
+;MOV r2, #100
+mov r2, #101
+STRB r2, [r0,#3]
+;STRB #101, [r0, #4]; place far right
+MOV r2, #101
+STRB r2, [r0,#4]
+;STRB #32, [r0, #5]; overwrite old far right with a space
+MOV r2, #32
+STRB r2, [r0,#5]
+
+ldr r0, ptr_to_paddle_offset
+ldrb r1, [r0]
+SUB r1, r1, #1
+STRB r1, [r0]
+
+;ADD CURSOR UPDATES HERE FOR FINAL VERSION
+B update_paddle_end
+
+move_paddle_right:
+CMP r1, #18; check the offset of the left of the paddle
+BGE update_paddle_end; if the paddle is already all the way right, skip to end
+
+SUB r0, r0, #1; get position to begin placing new paddle
+;STRB #32, [r0]; overwrite old far left with a space
+MOV r2, #32
+STRB r2, [r0]
+;STRB #97, [r0, #1]; place far left
+MOV r2, #97
+STRB r2, [r0,#1]
+;STRB #98, [r0, #2]; place middle left
+;MOV r2, #108
+mov r2, #97
+STRB r2, [r0,#2]
+;STRB #99, [r0, #3]; place middle
+MOV r2, #99
+STRB r2, [r0,#3]
+;STRB #100, [r0, #4]; place middle right
+;MOV r2, #100
+mov r2, #101
+STRB r2, [r0,#4]
+;STRB #101, [r0, #5]; place far right
+MOV r2, #101
+STRB r2, [r0,#5]
+
+ldr r0, ptr_to_paddle_offset
+ldrb r1, [r0]
+ADD r1, r1, #1
+STRB r1, [r0]
+
+;ADD CURSOR UPDATES HERE FOR FINAL VERSION
+B update_paddle_end; would fall through but just in case I have to add functionality here later and forget
+
+
+;make a place that saves the last character the ball landed on to check and update vector for ball as well as board (in case it overwrote a wall)
+
+update_paddle_end:
+POP {lr}
+MOV pc, lr
+
+
+update_ball:
+PUSH {lr}
+PUSH {r4,r5,r6,r7}
+
+;BL update_OOB	;check if ball went out of bounds
+update_ball_begin:
+MOV r7, #25
+LDR r0, ptr_to_ball_x
+LDRB r0, [r0]; get x coord of ball
+LDR r1, ptr_to_ball_y
+LDRB r1, [r1]; get y coord of ball
+LDR r2, ptr_to_x_vector
+LDRSB r3, [r2]; get x vector
+ADD r0, r0, r3; update x coord of ball
+LDR r4, ptr_to_y_vector
+LDRSB r5, [r4]; get y vector
+ADD r1, r1, r5; update y coord of ball
+
+
+CMP r0, #0
+IT LE
+ADDLE r3, r3, #2 ;if vector -1 and colliding with left wall, make vector 1
+
+CMP r0, #22
+IT GE
+SUBGE r3, r3, #2 ;if vector 1 and colliding with right wall, make vector -1
+
+STRB r3, [r2] ;store new x vector
+
+
+CMP r1, #17
+BLT death_skip
+B update_OOB
+
+death_skip:
+
+CMP r1, #0
+BGT y_invert_skip ;don't invert y if not hitting top of stage
+;PUSH {r6}
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+;POP {r6}
+
+y_invert_skip:
+
+;check for collision with color block, call wreckitralph in this case
+;check for collison with paddle, add second hidden paddle under real paddle to handle jumping through with angle of 60
+MUL r6, r1, r7
+ADD r6, r6, r0 ;get offset of ball destination
+LDR r7, ptr_to_bored
+ADD r6, r6, r7
+LDRB r6, [r6] ;get character currently at ball destination
+MOV r7, #25
+
+CMP r6, #114 ;check for "r" block hit
+BNE maybe_green
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph ;make ralph update the ball color and RGB
+POP {r0-r3}
+B mr_ralph_end
+;B update_ball_begin
+
+maybe_green:
+CMP r6, #103 ;check for "g" block hit
+BNE maybe_yellow
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph ;make ralph update the ball color and RGB
+POP {r0-r3}
+B mr_ralph_end
+;B update_ball_begin
+
+maybe_yellow:
+CMP r6, #121 ;check for "y" block hit
+BNE maybe_blue
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph ;make ralph update the ball color and RGB
+POP {r0-r3}
+B mr_ralph_end
+;B update_ball_begin
+
+maybe_blue:
+CMP r6, #98 ;check for "b" block hit
+BNE maybe_purple
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph ;make ralph update the ball color and RGB
+POP {r0-r3}
+B mr_ralph_end
+;B update_ball_begin
+
+maybe_purple:
+CMP r6, #112 ;check for "p" block hit
+BNE mr_ralph_end
+MOV r6, #1
+SUB r6, r6, #2 ;get -1 in r6
+MUL r5, r5, r6
+STRB r5, [r4] ;store negative y vector at y vector
+PUSH {r0-r3}
+BL wreck_it_ralph ;make ralph update the ball color and RGB
+POP {r0-r3}
+B mr_ralph_end
+;B update_ball_begin
+
+mr_ralph_end:
+
+;make ralph update the ball color and RGB
+
+CMP r6, #97 ;check for fl hit
+BNE maybe_ml
+MOV r6, #1
+SUB r6, r6, #2
+STRB r6, [r2] ;store -1 at x vector
+STRB r6, [r4] ;store -1 at y vector
+
+maybe_ml:
+CMP r6, #108 ;check for ml hit
+BNE maybe_m
+MOV r6, #1
+SUB r6, r6, #2
+STRB r6, [r2] ;store -1 at x vector
+SUB r6, r6, #1
+STRB r6, [r4] ;store -2 at y vector
+
+maybe_m:
+CMP r6, #99 ;check for m hit
+BNE maybe_mr
+MOV r6, #1
+SUB r6, r6, #2
+STRB r6, [r4] ;store -1 at y vector
+ADD r6, r6, #1
+STRB r6, [r2] ;store 0 at x vector
+
+maybe_mr:
+CMP r6, #100 ;check for mr hit
+BNE maybe_fr
+MOV r6, #1
+STRB r6, [r2] ;store 1 at x vector
+SUB r6, r6, #3
+STRB r6, [r4] ;store -2 at y vector
+
+
+maybe_fr:
+CMP r6, #101 ;check for fr hit
+BNE paddle_check_end
+MOV r6, #1
+STRB r6, [r2] ;store 1 at x vector
+SUB r6, r6, #2
+STRB r6, [r4] ;store -1 at y vector
+
+
+paddle_check_end:
+;check to see if we're about to overwrite something important and skip writing if so
+LDR r0, ptr_to_ball_y
+LDRB r0, [r0]
+LDR r1, ptr_to_y_vector
+LDRSB r1, [r1]
+ADD r0, r0, r1
+MUL r0, r0, r7
+LDR r1, ptr_to_ball_x
+LDRB r1, [r1]
+ADD r0, r0, r1
+LDR r1, ptr_to_x_vector
+LDRSB r1, [r1]
+ADD r0, r0, r1
+LDR r1, ptr_to_bored
+ADD r0, r0, r1
+LDRB r0, [r0]
+CMP r0, #32
+BNE update_ball_end
+
+
+
+
+;update the actual ball using new vectors and old position
+LDR r0, ptr_to_ball_y
+LDRB r0, [r0]
+MUL r0, r0, r7
+LDR r1, ptr_to_ball_x
+LDRB r1, [r1]
+ADD r0, r0, r1
+LDR r1, ptr_to_bored
+ADD r0, r0, r1
+MOV r1, #32
+STRB r1, [r0]
+
+LDR r0, ptr_to_ball_y
+LDRB r0, [r0] ;get y coord
+LDR r1, ptr_to_y_vector
+LDRSB r1, [r1]
+ADD r0, r0, r1 ;get y coord plus y vector
+LDR r1, ptr_to_ball_y
+STRB r0, [r1] ;store new y value
+;MUL r0, r0, r7 ;get y offset to new ball space
+LDR r0, ptr_to_ball_x
+LDRB r0, [r0] ;get x coord
+LDR r1, ptr_to_x_vector
+LDRSB r1, [r1]
+ADD r0, r0, r1; get x coord plus x vector
+LDR r1, ptr_to_ball_x
+STRB r0, [r1]; store new x value
+LDR r1, ptr_to_ball_y
+LDRB r1, [r1] ;get y to put ball at
+MUL r1, r1, r7 ;get y board offset
+ADD r0, r0, r1 ;get total board offset
+LDR r1, ptr_to_bored
+ADD r0, r0, r1 ;get address of board with offset to store ball at
+LDR r1, ptr_to_ball_color
+LDRB r1, [r1] ;get ball character to store
+STRB r1, [r0] ;place ball in correct position
+B update_ball_end
+
+
+;ADD r0, r0, r1 ;add x coord to y offset
+;LDR r1, ptr_to_x_vector
+;LDRB r1, [r1] ;get x vector
+;ADD r0, r0, r1 ;add x vector to get total offset to new ball space
+;LDR r2, ptr_to_bored ;get pointer to board
+;ADD r0, r0, r2 ;add offset to board to store ball at
+;LDR r1, ptr_to_ball_color
+;LDRB r1, [r1] ;load the new ball character
+;STRB r1, [r0] ;store the new ball character at the new ball position
+update_OOB:
+
+ldr r0, ptr_to_ball_color
+MOV r1, #42
+STRB r1, [r0]
+MOV r0, #0
+BL illuminate_RGB_LED
+
+LDR r0, ptr_to_ball_y
+  LDRB r0, [r0]
+  MUL r0, r0, r7
+  LDR r1, ptr_to_ball_x
+  LDRB r1, [r1]
+  ADD r0, r0, r1
+  LDR r1, ptr_to_bored
+  ADD r0, r0, r1
+  MOV r1, #32
+  STRB r1, [r0]
+
+  ;player loses a life
+  ldr r0, ptr_to_lives
+  LDRB r1, [r0]
+  SUB r1, r1, #1
+  STRB r1, [r0]
+;reset ball
+  ldr r0, ptr_to_ball_x
+  MOV r1, #10
+  STRB r1, [r0]
+  ldr r0, ptr_to_ball_y
+  MOV r1, #8
+  STRB r1, [r0]
+  ldr r0, ptr_to_x_vector
+  MOV r1, #0
+  STRB r1, [r0]
+  ldr r0, ptr_to_y_vector
+  MOV r1, #1
+  STRB r1, [r0]
+
+OOBend:
+  BL life_count   ;update number of lives user has left
+
+  ;reset ball position for new lvl
+
+update_ball_end:
+
+POP {r4,r5,r6,r7}
+POP {lr}
+MOV pc, lr
+
+;prints final prompt, print final score, end program
+gameover:
+
+  MOV r0, #0x000C;disable the timer
+  MOVT r0, #0x4003
+  MOV r1, #0
+  STRB r1, [r0]
+
+
+  MOV r0, #0xC;clear screen
+  BL output_character
+
+  ldr r0, ptr_to_gameover_prompt
+  BL output_string
+  ldr r0, ptr_to_finalscore_prompt
+  BL output_string
+  ldr r0, ptr_to_score
+  LDRB r0, [r0]
+  ldr r1, ptr_to_score_str
+  BL int2string
+  ldr r0, ptr_to_score_str
+  BL output_string
+
+gameEnd:
+  POP {lr}
+  POP {r0,r1,r2,r3}
+  MOV pc, lr
+
+
+
+
+
+UART0_Handler:
+
+PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+
+;clear the interrupt flag
+MOV r0, #0xC000
+MOVT r0, #0x4000
+LDRB r1, [r0, #0x044]
+ORR r1, r1, #0x10
+STRB r1, [r0, #0x044]
+
+BL read_character
+ldr r1, ptr_to_last_button_pressed
+strb r0, [r1]
+CMP r0, #100
+BEQ do_paddle_store
+CMP r0, #97
+BEQ do_paddle_store
+B paddle_store_skip
+do_paddle_store:
+ldr r1, ptr_to_paddle_direction
+STRB r0, [r1]
+paddle_store_skip:
+
+
+POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+
+BX lr       	; Return
+
+Switch_Handler:
+
+PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+PUSH {r0,r1}
+
+
+  ;clear the flag here pls thx
+MOV r0, #0x5000			;Load port F address
+MOVT r0, #0x4002
+;Clear intterupt flag for SW1 Tiva to allow a different interrupt to activate if needed
+LDRB r1, [r0,#0x41C]
+ORR r1, r1, #0x10
+STRB r1, [r0, #0x41C]
+
+;checks to see if game is paused currently or not
+ldr r0, ptr_to_pause_bool
+LDRB r1, [r0]
+
+
+CMP r1, #0		;user has pushed the sw1 button to pause the game
+BEQ pause_it
+B resume
+
+pause_it:
+
+;Disables timer by writing a 0 to bit 0
+MOV r0, #0x0000
+MOVT r0, #0x4003
+LDRB r1, [r0, #0x00C]
+BFC r1, #0, #1
+STRB r1, [r0, #0x00C]
+
+;Turns the RGB LED blue
+MOV r0, #2
+BL illuminate_RGB_LED
+
+ldr r0, ptr_to_pause_bool
+MOV r1, #1
+STRB r1, [r0]
+
+;ldr r0, ptr_to_pause_prompt
+;ldr r1, ptr_to_bored
+;ADD r1, r1, #10  ;Offset to place prompt towards the bottom of the screen
+;STR r0, [r1]  ;Writes pause to the screen
+ldr r0, ptr_to_pause_prompt
+BL output_string
+B switchend
+
+
+
+resume:
+
+;Turns the RGB LED off
+ldr r0, ptr_to_old_color
+LDRB r0, [r0]
+BL illuminate_RGB_LED
+
+ldr r0, ptr_to_pause_bool
+MOV r1, #0
+STRB r1, [r0]
+
+MOV r0, #0xC
+BL output_character
+ldr r0, ptr_to_bored
+BL output_board
+
+;Enables timer by writing a 1 to bit 0
+MOV r0, #0x0000
+MOVT r0, #0x4003
+LDRB r1, [r0, #0x00C]
+ORR r1, r1, #1
+STRB r1, [r0, #0x00C]
+
+switchend:
+  POP {r0,r1}
+POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+BX lr       	; Return
+
+Timer_Handler:
+
+; Your code for your Timer handler goes here.  It is not needed
+; for Lab #5, but will be used in Lab #6.  It is referenced here
+; because the interrupt enabled startup code has declared Timer_Handler.
+; This will allow you to not have to redownload startup code for
+; Lab #6.  Instead, you can use the same startup code as for Lab #5.
+; Remember to preserver registers r4-r11 by pushing then popping
+; them to & from the stack at the beginning & end of the handler.
+
+PUSH {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+
+;clear timer interrupt flag
+MOV r0, #0x0000
+MOVT r0, #0x4003
+LDRB r1, [r0, #0x024]
+ORR r1, r1, #1
+STRB r1, [r0, #0x024]
+
+;checks to see if all bricks have been cleared to potentially speed up timer
+BL advance_check
+ldr r0, ptr_to_lvlup_bool
+LDRB r0, [r0]
+CMP r0, #1	;level has been cleared successfully
+BEQ lvlupstart
+B continue
+
+lvlupstart:
+ldr r0, ptr_to_lvlup_bool
+MOV r1, #0
+STRB r1, [r0]
+BL levelup	;falls through to continue after
+
+
+continue:
+BL update_paddle
+BL update_ball
+MOV r0, #0xC
+BL output_character
+LDR r0, ptr_to_bored
+BL output_board
+
+
+POP {r4,r5,r6,r7,r8,r9,r10,r11,lr}
+
+
+BX lr       	; Return
+
+
+output_character:
+
+PUSH {lr}   ; Store register lr on stack
+
+MOV r1, #0xC018; load bottom of flag register address into r1
+MOVT r1, #0x4000; load top of flag register address into r1
+MOV r2, #0xC000; load bottom of data register address into r2
+MOVT r2, #0x4000; load top of data register address into r2
+
+mysillylittlelabel:
+LDRB r3, [r1]; load value in flag register into r3
+AND r3, r3, #0x20; mask to get value of TxFF
+CMP r3, #0; see if TxFF is zero yet
+BNE mysillylittlelabel; if TxFF is not zero yet, load and check agaiN
+;CMP r0, #0xD
+;BEQ fixreturn
+STRB r0, [r2]; if TxFF is zero, store value of r0 in data register
+B afterfixreturn
+fixreturn:
+STRB r0, [r2]
+MOV r0, #0xA
+B mysillylittlelabel
+afterfixreturn:
+POP {lr}
+MOV pc, lr
+
+;------------------------------------------------------------------------------------------------------------------------------------------
+output_string:
+
+PUSH {lr};prints the null terminated string starting at address in r0 to standard output
+MOV r1, r0; put mem adress in r1 since r0 will be changed
+
+OSloop:
+LDRB r0, [r1]; get byte at mem pointer
+CMP r0, #0; check to see if null byte hit
+BEQ OSend
+PUSH {r1}
+BL output_character
+POP {r1}
+ADD r1, r1, #1; increment memory pointer to next digit
+B OSloop
+
+OSend:
+;MOV r0, #0xD; if null byte, load value for "enter" instead
+;BL output_character
+POP {lr}
+MOV pc, lr
+
+uart_init:
+PUSH {lr}  ; Store register lr on stack
+
+;Enables clock for UART0
+MOV r0, #0xE618
+MOVT r0, #0x400F
+MOV r1, #1
+STR r1, [r0]
+;Enables clock for PORTA
+MOV r0, #0xE608
+MOVT r0, #0x400F
+MOV r1, #1
+STR r1, [r0]
+;Disables UART0 control
+MOV r0, #0xC030
+MOVT r0, #0x4000
+MOV r1, #0
+STR r1, [r0]
+;Sets the Baud Rate for UART0_IBRD_R to 115,200
+MOV r0, #0xC024
+MOVT r0, #0x4000
+MOV r1, #8
+STR r1, [r0]
+;Sets the Baud Rate for UART0_FBRD_R to 115,200
+MOV r0, #0xC028
+MOVT r0, #0x4000
+MOV r1, #44
+STR r1, [r0]
+;Ensures we are using the system clock
+MOV r0, #0xCFC8
+MOVT r0, #0x4000
+MOV r1, #0
+STR r1, [r0]
+;Sets the word length to 8 bits with 1 stop bit and no parity bits
+MOV r0, #0xC02C
+MOVT r0, #0x4000
+MOV r1, #0x60
+STR r1, [r0]
+;Enables UART0 Control
+MOV r0, #0xC030
+MOVT r0, #0x4000
+MOV r1, #0x301
+STR r1, [r0]
+
+;Sets PA0 to Digital Port
+MOV r0, #0x451C
+MOVT r0, #0x4000
+LDR r1, [r0]
+ORR r1, r1, #0x03
+STR r1, [r0]
+;Sets PA1 to Digital Port
+MOV r0, #0x4420
+MOVT r0, #0x4000
+LDR r1, [r0]
+ORR r1, r1, #0x03
+STR r1, [r0]
+;Configures PA0 and PA1 for UART0
+MOV r0, #0x452C
+MOVT r0, #0x4000
+LDR r1, [r0]
+ORR r1, r1, #0x11
+STR r1, [r0]
+
+POP {lr}
+mov pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+read_character:
+PUSH {lr}   ; Store register lr on stack
+
+; Your code for your read_character routine is placed here
+MOV r1, #0xC018				;These two lines move the flag data register address from mem into r1
+MOVT r1, #0x4000
+
+rcharloop:
+LDRB r3, [r1]				;Offset to reach TxFF and TxFE
+AND r3, r3, #0x10			;AND Logic to isolate bit stored in TxFE register
+
+CMP r3, #0					;If 0, flag is set and register is holding a value
+BEQ gotit
+B rcharloop						;Reload and AND again if flag is a 1, meaning register is empty
+
+gotit:
+MOV r1, #0xC000				;Load from mem the UART Data Register
+MOVT r1, #0x4000
+
+LDRB r3, [r1]				;Grab the first byte, "data" section holding the character that was pressed on the keyboard
+MOV r0, r3					;Pass to r0 for output character can use it
+
+POP {lr}
+mov pc, lr
+
+
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+not_a_fork_bomb:;runs a ton of instructions to give time for the pull up register to actually set. Is actually not a fork bomb just a loop
+PUSH {lr}
+PUSH{r0}
+PUSH{r1}
+
+MOV r0, #0xFFFF
+MOVT r0, #0x0002
+MOV r1, #0
+
+perhaps_a_fork_bomb:
+SUB r0, r0, #1
+CMP r0, r1
+BEQ nomorefork
+B perhaps_a_fork_bomb
+
+nomorefork:
+POP {r1}
+POP {r0}
+POP {lr}
+
+MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+int2string:
+PUSH {lr};takes int in r0 and address in r1, converts the int to a string and stores at r1
+PUSH {r0}
+MOV r2, r1 ;address to store at is in r2
+PUSH {r2}
+BL get_length
+POP {r2}
+MOV r1, r0
+SUB r1, r1, #1
+
+I2Sloop:
+POP {r0} ;get original r0 back
+PUSH {r0}
+PUSH {r1} ;preserve original r0, current r1 and r2
+BL get_nth ;gets nth digit specifed in r1 from int in r0, stores in r0
+POP {r1}; get back r1 and r2 that may have been changed in get_nth
+ADD r0, r0, #48; add 48 to get ascii value of digit
+STRB r0, [r2]
+ADD r2, r2, #1
+SUB r1, r1, #1
+CMP r1, #0
+BGE I2Sloop
+MOV r0, #0
+STRB r0, [r2]
+
+POP{lr,r0}
+MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+get_length:
+PUSH {lr}
+MOV r2, #0; initialize accumulator in r2 to 0
+MOV r3, r0; put r0 in r3 so we can modify r0's value without losing r0
+MOV r10, #10
+
+get_lengthloop:
+ADD r2, r2, #1; increase digit count
+SDIV r3, r3, r10; divide by 10 and round down (trying to get to 0)
+CMP r3, #0; checking to see if 0 is reached
+BGT get_lengthloop; if not at zero, we know there's another digit so divide and accumulate again
+MOV r0, r2
+POP {lr}
+MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+get_nth:;takes int in r0 and index in r1, returns number at that index in r0
+PUSH {lr}
+MOV r4, #10
+MOV r3, r0
+MUL r3, r3, r4; preserve the value for first run of loop2
+ADD r1, r1, #1; preserve the value for first run of loop2
+
+get_nthloop:
+SDIV r3, r3, r4
+SUB r1, r1, #1
+CMP r1, #0
+BGT get_nthloop
+
+MOV r0, r3
+SDIV r3, r3, r4; divide by 10, round down
+MUL r3, r3, r4; multiply by 10, get back same magnitude but 0 in 1's place
+SUB r1, r0, r3; subtract rounded down number from original number
+
+MOV r0, r1
+POP {lr}
+MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------------------------------------------------------------------
+
+illuminate_RGB_LED:
+PUSH {lr}
+
+      ;
+MOV r1, #0x5000
+MOVT r1, #0x4002
+
+;sets the bits for pins 1,2,3 to be outputs
+LDRB r2, [r1, #0x400]
+ORR r2, r2, #14
+STRB r2, [r1, #0x400]
+;sets the bits for pins 1,2,3 to be digital
+LDRB r2, [r1, #0x51C]
+ORR r2, r2, #14
+STRB r2, [r1, #0x51C]
+;loads the data register for port f, inserts the desired bits for the LEDs to be active, and stores the new value for the data register back.
+LDRB r2, [r1, #0x3FC]
+BFI r2, r0, #1, #3
+STRB r2, [r1, #0x3FC]
+
+
+POP {lr}
+MOV pc, lr
+
+;----------------------------------------------------------------------------------------
+;Logic for hitting brick and clearing it
+;Update ball color -> ptr_to_ball_color
+;update RGB LED to most recent color
+;Given x coord of brick in r0 and y coord of brick in r1
+wreck_it_ralph:
+
+  PUSH {lr}
+  PUSH {r0,r1,r2,r3,r4,r5}
+
+
+  MOV r2, #25 ;used for y coord to navigate board
+
+update_ball_color:    ;Update ball color here
+  MUL r1, r1, r2
+  ADD r0, r1, r0
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+  LDRB r2, [r2]   ;load to see what char is there
+
+  ;checks to see what color brick was hit
+  CMP r2, #114
+  BEQ redBall
+  CMP r2, #103
+  BEQ greenBall
+  CMP r2, #98
+  BEQ blueBall
+  CMP r2, #121
+  BEQ yellowBall
+  CMP r2, #112
+  BEQ purpleBall
+
+redBall:
+  PUSH {r0,r1}
+
+  ;updates ptr in mem for ball color
+  ldr r0, ptr_to_ball_color
+  MOV r1, #82
+  STRB r1, [r0]
+  ;illuminates RGB to color of recently hit brick
+  MOV r0, #1
+  ldr r1, ptr_to_old_color
+  STRB r0, [r1]
+  BL illuminate_RGB_LED
+
+  POP {r0,r1}
+  B imGonnaWreckit
+
+greenBall:
+  PUSH {r0,r1}
+
+  ;updates ptr in mem for ball color
+  ldr r0, ptr_to_ball_color
+  MOV r1, #71
+  STRB r1, [r0]
+  ;illuminates RGB to color of recently hit brick
+  MOV r0, #4
+  ldr r1, ptr_to_old_color
+  STRB r0, [r1]
+  BL illuminate_RGB_LED
+
+
+  POP {r0,r1}
+  B imGonnaWreckit
+
+
+blueBall:
+  PUSH {r0,r1}
+
+  ;updates ptr in mem for ball color
+  ldr r0, ptr_to_ball_color
+  MOV r1, #66
+  STRB r1, [r0]
+  ;illuminates RGB to color of recently hit brick
+  MOV r0, #2
+  ldr r1, ptr_to_old_color
+  STRB r0, [r1]
+  BL illuminate_RGB_LED
+
+
+  POP {r0,r1}
+  B imGonnaWreckit
+
+yellowBall:
+  PUSH {r0,r1}
+
+  ;updates ptr in mem for ball color
+  ldr r0, ptr_to_ball_color
+  MOV r1, #89
+  STRB r1, [r0]
+  ;illuminates RGB to color of recently hit brick
+  MOV r0, #5
+  ldr r1, ptr_to_old_color
+  STRB r0, [r1]
+  BL illuminate_RGB_LED
+
+
+  POP {r0,r1}
+  B imGonnaWreckit
+
+purpleBall:
+  PUSH {r0,r1}
+
+  ;updates ptr in mem for ball color
+  ldr r0, ptr_to_ball_color
+  MOV r1, #86
+  STRB r1, [r0]
+  ;illuminates RGB to color of recently hit brick
+  MOV r0, #3
+  ldr r1, ptr_to_old_color
+  STRB r0, [r1]
+  BL illuminate_RGB_LED
+
+
+  POP {r0,r1}
+  B imGonnaWreckit
+
+imGonnaWreckit:
+
+POP {r0,r1}
+
+  ;increment score nad lvlup score
+  ldr r4, ptr_to_score
+  LDRB r5, [r4]
+  ADD r5, r5, #1
+  STRB r5, [r4]
+  ldr r4, ptr_to_lvlupscore
+  LDRB r5, [r4]
+  ADD r5, r5, #1
+  STRB r5, [r4]
+
+
+  ;Checks to see what brick was hit based on X coordinate
+  CMP r0, #3
+  BLE brickOne
+  CMP r0, #6
+  BLE brickTwo
+  CMP r0, #9
+  BLE brickThree
+  CMP r0, #12
+  BLE brickFour
+  CMP r0, #15
+  BLE brickFive
+  CMP r0, #18
+  BLE brickSix
+  CMP r0, #21
+  BLE brickSeven
+  B endRalph   ;End if error
+
+
+brickOne:
+MOV r2, #25 ;used for y coord to navigate board
+  MUL r1, r1, r2  ;Finds the row we are in
+  ADD r0, r1, #1  ;Starts at first piece of first brick
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+
+  ;Clears brick
+  MOV r1, #32
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  B endRalph
+
+
+brickTwo:
+MOV r2, #25 ;used for y coord to navigate board
+  MUL r1, r1, r2  ;Finds the row we are in
+  ADD r0, r1, #4  ;Starts at first piece of first brick
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+
+  ;Clears brick
+  MOV r1, #32
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  B endRalph
+
+
+brickThree:
+MOV r2, #25 ;used for y coord to navigate board
+  MUL r1, r1, r2  ;Finds the row we are in
+  ADD r0, r1, #7  ;Starts at first piece of first brick
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+
+  ;Clears brick
+  MOV r1, #32
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  B endRalph
+
+
+brickFour:
+MOV r2, #25 ;used for y coord to navigate board
+  MUL r1, r1, r2  ;Finds the row we are in
+  ADD r0, r1, #10  ;Starts at first piece of first brick
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+
+  ;Clears brick
+  MOV r1, #32
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  B endRalph
+
+
+brickFive:
+MOV r2, #25 ;used for y coord to navigate board
+  MUL r1, r1, r2  ;Finds the row we are in
+  ADD r0, r1, #13  ;Starts at first piece of first brick
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+
+  ;Clears brick
+  MOV r1, #32
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  B endRalph
+
+
+brickSix:
+MOV r2, #25 ;used for y coord to navigate board
+  MUL r1, r1, r2  ;Finds the row we are in
+  ADD r0, r1, #16  ;Starts at first piece of first brick
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+
+  ;Clears brick
+  MOV r1, #32
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  B endRalph
+
+
+brickSeven:
+MOV r2, #25 ;used for y coord to navigate board
+  MUL r1, r1, r2  ;Finds the row we are in
+  ADD r0, r1, #19  ;Starts at first piece of brick
+  ldr r2, ptr_to_bored
+  ADD r2, r2, r0  ;offset for specific brick in specific row
+
+  ;Clears brick by writing three spaces to board
+  MOV r1, #32
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+  STRB r1, [r2], #1
+
+endRalph:
+  POP {r2,r3,r4,r5}
+  POP {lr}
+  MOV pc, lr
+
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+;Main subroutine for levelmaker and creation
+toy_maker:
+
+  PUSH {lr}
+  PUSH {r0,r1,r2,r3,r4,r5}
+
+  ;load pointer to determine how many rows to print
+  ldr r0, ptr_to_lvl_count
+  LDRB r4, [r0]
+  CMP r4, #0
+  BEQ default
+  ldr r5, ptr_to_bored
+  ADD r5, r5, #76 ;offset for where to start printing bricks
+  B levelmaker
+
+default:
+  ADD r4, r4, #1	;deafult row count is 1
+  STRB r4, [r0]
+  ldr r5, ptr_to_bored
+  ADD r5, r5, #76 ;offset for where to start printing bricks
+
+;Loop will print out however many rows that the user selected
+levelmaker:
+  CMP r4, #0   ;if 0, desired number of rows has been printed
+  BEQ endToymaker
+  SUB r4, r4, #1
+  BL creation
+  B levelmaker
+
+;-------------------------------------------------------------
+creation:
+  ;ensures that 7 bricks are printed per row
+  ldr r0, ptr_to_brick_count
+  LDRB r0, [r0]
+  CMP r0, #7
+  BEQ prelevelmaker
+  B brickcolor
+
+prelevelmaker:
+  ldr r0, ptr_to_brick_count	;resets brick count
+  MOV r1, #0
+  STRB r1, [r0]
+  ADD r5, r5, #4  ;ensures we start at new row below
+  B levelmaker
+
+brickcolor:
+;address for Timer A1 value
+
+  MOV r0, #0x1050
+  MOVT r0, #0x4003
+
+  MOV r2, #5  ;Used for modulo operation
+
+  ;MODULO OPERATION
+  LDRB r3, [r0]   ;random value of timer
+  SDIV r1, r3, r2
+  MUL r1, r1, r2
+  SUB r1, r3, r1
+
+;Determines what color to make brick
+;0 = red 114
+;1 = green 103
+;2 = yellow 121
+;3 = blue 98
+;4 = purple 112
+  CMP r1, #0
+  BEQ redBrick
+  CMP r1, #1
+  BEQ greenBrick
+  CMP r1, #2
+  BEQ yellowBrick
+  CMP r1, #3
+  BEQ blueBrick
+  CMP r1, #4
+  BEQ purpleBrick
+;-------------------------------------------------------------
+redBrick:
+  ;writes 3 Rs to the board
+  MOV r1, #114
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  ;update brick count so we know how many we have done
+  ldr r0, ptr_to_brick_count
+  LDRB r1, [r0]
+  ADD r1, r1, #1
+  STRB r1, [r0]
+
+  B creation
+
+greenBrick:
+  ;writes 3 Gs to the board
+  MOV r1, #103
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  ;update brick count so we know how many we have done
+  ldr r0, ptr_to_brick_count
+  LDRB r1, [r0]
+  ADD r1, r1, #1
+  STRB r1, [r0]
+
+  B creation
+
+
+yellowBrick:
+  ;writes 3 Ys to the board
+  MOV r1, #121
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  MOV r1, #121
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  MOV r1, #121
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  ;update brick count so we know how many we have done
+  ldr r0, ptr_to_brick_count
+  LDRB r1, [r0]
+  ADD r1, r1, #1
+  STRB r1, [r0]
+
+
+  B creation
+
+blueBrick:
+  ;writes 3 Bs to the board
+  MOV r1, #98
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  MOV r1, #98
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  MOV r1, #98
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  ;update brick count so we know how many we have done
+  ldr r0, ptr_to_brick_count
+  LDRB r1, [r0]
+  ADD r1, r1, #1
+  STRB r1, [r0]
+
+  B creation
+
+purpleBrick:
+  ;writes 3 Ps to the board
+  MOV r1, #112
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  MOV r1, #112
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  MOV r1, #112
+  STRB r1, [r5]
+  ADD r5, r5, #1
+  ;update brick count so we know how many we have done
+  ldr r0, ptr_to_brick_count
+  LDRB r1, [r0]
+  ADD r1, r1, #1
+  STRB r1, [r0]
+
+  B creation
+
+endToymaker:
+  POP {r0,r1,r2,r3,r4,r5}
+  POP {lr}
+  MOV pc, lr
+
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+illuminate_LEDs:
+
+PUSH {lr}
+
+;*Load Port B data register*
+MOV r2, #0x53FC
+MOVT r2, #0x4000
+
+;*Insert data passed into r0 into LEDs data register*
+LDRB r1, [r2]
+BFI r1, r0, #0, #4
+
+STRB r1, [r2]
+
+POP {lr}
+MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+lvls_counter:
+
+PUSH {lr}
+PUSH {r0,r1,r2,r3,r4}
+
+MOV r0, #0
+
+;*Load Port B data register*
+MOV r2, #0x73FC
+MOVT r2, #0x4000
+
+;Load data from LEDs data register*
+LDRB r1, [r2]
+
+Lvlloop:
+CMP r0, #4
+BEQ lvls_counterend
+AND r3, r1, #1
+CMP r3, #1
+BEQ pushMe
+LSR r1, r1, #1
+ADD r0, r0, #1  ;increment acc
+B Lvlloop
+
+
+pushMe:
+ADD r0, r0, #1  ;increment acc
+ADD r4, r4, #1
+
+LSR r1, r1, #1
+B Lvlloop
+
+lvls_counterend:
+ldr r2, ptr_to_lvl_count	;store value in memory for future subroutine
+STRB r4, [r2]
+
+POP {r0,r1,r2,r3,r4}
+POP {lr}
+MOV pc, lr
+
+life_count:
+
+PUSH {lr}
+PUSH {r0,r1,r2,r3}
+
+ldr r0, ptr_to_lives
+LDRB r1, [r0]		;stores the number of lives the user currently has into r1
+
+;below checks how many lives they have left and will illuminate that many LEDs based on the number
+CMP r1, #4
+BEQ f_lives
+CMP r1, #3
+BEQ t_lives
+CMP r1, #2
+BEQ tw_lives
+CMP r1, #1
+BEQ o_life
+CMP r1, #0
+BEQ ded
+
+
+f_lives:
+MOV r0, #15	;turns on all 4 LEDs
+BL illuminate_LEDs
+B lifeend
+
+t_lives:
+MOV r0, #7	;turns on 3 LEDs
+BL illuminate_LEDs
+B lifeend
+
+tw_lives:
+MOV r0, #3	;turns on 2 LEDs
+BL illuminate_LEDs
+B lifeend
+
+o_life:
+MOV r0, #1	;turns on 1 LED
+BL illuminate_LEDs
+B lifeend
+
+ded:
+MOV r0, #0	;turns off all 4 LEDs
+BL illuminate_LEDs
+
+lifeend:
+POP {r0,r1,r2,r3}
+POP {lr}
+MOV pc, lr
+
+
+;-----------------------------------------------------------------------------------------
+;menu at start, user holds push buttons for desired lvls
+;and presses S key to start
+startup:
+
+  PUSH {lr}
+  PUSH {r0,r1,r2,r3,r4}
+
+  ;startup prompt menu given to user
+  ldr r0, ptr_to_start_prompt
+  BL output_string
+  ldr r0, ptr_to_prompt
+  BL output_string
+
+standBy:
+  BL read_character
+  CMP r0, #115
+  BEQ startupEnd
+  B standBy
+
+
+
+startupEnd:
+  ;clear screen before we start
+  MOV r0, #0xC
+  BL output_character
+
+  POP {r0,r1,r2,r3,r4}
+  POP {lr}
+  MOV pc, lr
+
+
+;-------------------------------------------------------------------------
+
+;------------------------------------------------------------------------------
+;checks to see if all bricks are cleared
+advance_check:
+
+  PUSH {lr}
+  PUSH {r0,r1,r2,r3}
+
+  ldr r0, ptr_to_lvl_count
+  LDRB r0, [r0]
+  CMP r0, #1
+  BEQ onerowCheck
+  CMP r0, #2
+  BEQ tworowCheck
+  CMP r0, #3
+  BEQ threerowCheck
+  CMP r0, #4
+  BEQ fourrowCheck
+  B pleaseleave    ;error occurred
+
+
+onerowCheck:
+  ldr r0, ptr_to_lvlupscore
+  LDRB r0, [r0]
+  CMP r0, #7
+  BEQ advanceEnd
+  B pleaseleave
+
+
+tworowCheck:
+  ldr r0, ptr_to_lvlupscore
+  LDRB r0, [r0]
+  CMP r0, #14
+  BEQ advanceEnd
+  B pleaseleave
+
+threerowCheck:
+  ldr r0, ptr_to_lvlupscore
+  LDRB r0, [r0]
+  CMP r0, #21
+  BEQ advanceEnd
+  B pleaseleave
+
+
+fourrowCheck:
+  ldr r0, ptr_to_lvlupscore
+  LDRB r0, [r0]
+  CMP r0, #28
+  BEQ advanceEnd
+  B pleaseleave
+
+
+advanceEnd:
+  ldr r0, ptr_to_lvlup_bool
+  MOV r1, #1
+  STRB r1, [r0]
+
+pleaseleave:
+  POP {r0,r1,r2,r3}
+  POP {lr}
+  MOV pc, lr
+
+;----------------------------------------------------------------------------
+
+levelup:
+
+  PUSH {lr}
+  PUSH {r0,r1,r2,r3}
+
+  ;Disables timer by writing a 0 to bit 0
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  BFC r1, #0, #1
+  STRB r1, [r0, #0x00C]
+
+
+
+  ldr r0, ptr_to_lvlupscore
+  LDRB r0, [r0]
+  MOV r1, #0
+  STRB r1, [r0]
+
+  ldr r0, ptr_to_speedup_count
+  LDRB r1, [r0]
+  CMP r1, #4
+  BGE dont_speed	;4 lvls already completed, dont speed up ball again
+
+  ;Address that holds time interval of Timer
+  MOV r0, #0x0
+  MOVT r0, #0x4003
+
+  ;Increases ball movement
+  LDR r1, [r0, #0x028]
+  ldr r2, ptr_to_spedup_speed
+  ldr r2, [r2]
+  SUB r1, r1, r2
+  STR r1, [r0, #0x028]
+
+;program jumps here once we have completed 4 levels so speed of ball doesnt increase
+dont_speed:
+  ;reset lvlup score since new bricks are printed
+  ldr r0, ptr_to_lvlupscore
+  MOV r1, #0
+  STRB r1, [r0]
+
+
+
+  ;reset ball position for new lvl
+  ldr r0, ptr_to_ball_x
+  MOV r1, #11
+  STRB r1, [r0]
+  ldr r0, ptr_to_ball_y
+  MOV r1, #8
+  STRB r1, [r0]
+  ldr r0, ptr_to_x_vector
+  MOV r1, #0
+  STRB r1, [r0]
+  ldr r0, ptr_to_y_vector
+  MOV r1, #1
+  STRB r1, [r0]
+  ldr r0, ptr_to_paddle_offset
+  mov r1, #9
+  strb r1, [r0]
+  ldr r0, ptr_to_paddle_direction
+  mov r1, #0
+  strb r1, [r0]
+
+  ldr r0, ptr_to_speedup_count
+  LDRB r1, [r0]
+  ADD r1, r1, #1
+  STRB r1, [r0]
+
+ldr r0, ptr_to_ball_color
+MOV r1, #42
+STRB r1, [r0]
+
+MOV r0, #0
+BL illuminate_RGB_LED
+
+  LDR r0, ptr_to_template_bored
+  LDR r1, ptr_to_bored
+  BL copy_string
+
+  BL toy_maker ;make new board
+  ;reset score maybe or add more to lvlup check
+  BL output_board
+
+
+
+  ;Enables timer by writing a 1 to bit 0
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  ORR r1, r1, #1
+  STRB r1, [r0, #0x00C]
+
+
+  POP {r0,r1,r2,r3}
+  POP {lr}
+  MOV pc, lr
+;--------------------------------------------------------------------------------------------
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+copy_string: ;takes a string address into r0 and copies its string to a string address in r1
+PUSH {lr}
+
+copy_string_loop:
+LDRB r2, [r0] ;load the first byte from r0
+CMP r2, #0 ;check for null byte
+BEQ copy_string_end
+STRB r2, [r1]
+ADD r0, r0, #1
+ADD r1, r1, #1
+B copy_string_loop
+
+
+copy_string_end:
+STRB r2, [r1]
+
+POP {lr}
+MOV pc, lr
+
+gpio_btn_and_LEDS_init:
+
+PUSH {lr}
+
+;*PUSH BUTTONS*
+;*Enable clock for port D*
+MOV r0, #0xE608
+MOVT r0, #0x400F
+
+LDR r1, [r0]
+ORR r1, r1, #8
+STR r1, [r0]
+
+;*Set pins D0-D3 to be Input*
+MOV r0, #0x7400
+MOVT r0, #0x4000
+
+LDRB r1, [r0]
+AND r1, r1, #0xF0
+STRB r1, [r0]
+
+;*Turn on pullup resistors for D0-D3*
+;	MOV r0, #0x7510
+;	MOVT r0, #0x4000
+;
+;	LDRB r1, [r0]
+;	ORR r1, r1, #15
+;	STRB r1, [r0]
+
+;*Set pins 0-3 to be Digital*
+MOV r0, #0x751C
+MOVT r0, #0x4000
+
+LDRB r1, [r0]
+ORR r1, r1, #15
+STRB r1, [r0]
+
+;*LEDS*
+;*Enable clock for port B*
+MOV r0, #0xE608
+MOVT r0, #0x400F
+
+LDR r1, [r0]
+ORR r1, r1, #2
+STR r1, [r0]
+
+;*Set pins B0-B3 to be outputs*
+MOV r0, #0x5400
+MOVT r0, #0x4000
+
+LDR r1, [r0]
+ORR r1, r1, #15
+STR r1, [r0]
+
+;*Set pins B0-B3 to be digital*
+MOV r0, #0x551C
+MOVT r0, #0x4000
+
+LDRB r1, [r0]
+ORR r1, r1, #15
+STRB r1, [r0]
+
+;*RGB AND SW1*
+;*Enable clock for port F*
+MOV r0, #0xE608
+MOVT r0, #0x400F
+
+LDR r1, [r0]
+ORR r1, r1, #32
+STR r1, [r0]
+
+;*Set pins F1-F3 to be Outputs*
+MOV r0, #0x5400
+MOVT r0, #0x4002
+
+LDRB r1, [r0]
+ORR r1, r1, #14
+STRB r1, [r0]
+
+;*Set pin F4 to be an Input*
+MOV r0, #0x5400
+MOVT r0, #0x4002
+
+LDRB r1, [r0]
+AND r1, r1, #0xEF
+STRB r1, [r0]
+
+;*Set pins F1-F4 to be Digital*
+MOV r0, #0x551C
+MOVT r0, #0x4002
+
+LDRB r1, [r0]
+ORR r1, r1, #0x1E
+STRB r1, [r0]
+
+;*Turn on pullup resistor for pin F4*
+;MOV r0, #0x5510
+;	MOVT r0, #0x4002
+;
+;	LDRB r1, [r0]
+;	ORR r1, r1, #16
+;	STRB r1, [r0]
+
+BL not_a_fork_bomb;give time to make sure everything sets before continuing
+POP {lr}
+MOV pc, lr
+
+
+uart_interrupt_init:
+
+;Loads UARTIM address
+MOV r0, #0xC000
+MOVT r0, #0x4000
+
+;Sets RIXM for UART
+LDR r1, [r0, #0x038]
+ORR r1, r1, #0x10
+STR r1, [r0, #0x038]
+
+;Clear UART Interrupt
+LDRB r1, [r0, #0x044]
+ORR r1, r1, #0x10
+STRB r1, [r0, #0x044]
+
+;Configures processor to allow UART to interrupt processor
+;Load Interrupt Set Enable Register
+MOV r0, #0xE000
+MOVT r0, #0xE000
+
+LDRB r1, [r0, #0x100]
+ORR r1, r1, #0x20
+STRB r1, [r0, #0x100]
+
+
+MOV pc, lr
+
+
+gpio_interrupt_init:
+
+;Code below turns on clock for port F
+MOV r0, #0xE608
+MOVT r0, #0x400F
+
+LDRB r1, [r0]
+ORR r1, r1, #32
+STRB r1, [r0]
+
+;*Set pin F4 to be an Input*
+MOV r0, #0x5000			;Load port F address
+  MOVT r0, #0x4002
+
+LDRB r1, [r0, #0x400]
+AND r1, r1, #0xEF
+STRB r1, [r0, #0x400]
+
+;*Set pin F4 to be Digital*
+LDRB r1, [r0, #0x51C]
+ORR r1, r1, #0x10
+STRB r1, [r0, #0x51C]
+
+;Turn on pullup resistor for pin F4
+LDRB r1, [r0, #0x510]
+ORR r1, r1, #16
+STRB r1, [r0, #0x510]
+
+;Make interrupt for SW1 edge sensitive
+LDRB r1, [r0,#0x404]
+AND r1, r1, #0xEF
+STRB r1, [r0, #0x404]
+
+;Make interrupt for SW1 single edge triggering
+LDRB r1, [r0,#0x408]
+AND r1, r1, #0xEF
+STRB r1, [r0, #0x408]
+
+;Make interrupt for SW1 falling edge trigger
+LDRB r1, [r0,#0x40C]
+AND r1, r1, #0xEF
+STRB r1, [r0, #0x40C]
+
+;Enable intterupt for SW1 Tiva
+LDRB r1, [r0,#0x410]
+ORR r1, r1, #0x10
+STRB r1, [r0, #0x410]
+
+;Clear intterupt flag for SW1 Tiva to allow a different interrupt to activate if needed
+LDRB r1, [r0,#0x41C]
+ORR r1, r1, #0x10
+STRB r1, [r0, #0x41C]
+
+;Allow GPIO Port F to use interrupts
+MOV r0, #0xE100
+MOVT r0, #0xE000
+
+LDRB r1, [r0, #3]
+ORR r1, r1, #0x40
+STRB r1, [r0, #3]
+
+
+MOV pc, lr
+
+
+
+Timer_Init:
+
+  PUSH {lr}
+
+   ;Connects clock to Timer1 by writing a 1 to bit 0
+  MOV r0, #0xE604
+  MOVT r0, #0x400F
+  LDRB r1, [r0]
+  ORR r1, r1, #1
+  STRB r1, [r0]
+
+  ;Connects clock to Timer2 by writing a 1 to bit 1
+  MOV r0, #0xE604
+  MOVT r0, #0x400F
+  LDRB r1, [r0]
+  ORR r1, r1, #2
+  STRB r1, [r0]
+
+  ;Disables timer1 by writing a 0 to bit 0
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  BFC r1, #0, #1
+  STRB r1, [r0, #0x00C]
+
+  ;Set Timer to 32-bit mode
+  LDRB r1, [r0]
+  BFC r1, #0, #3
+  ;ORR r1, r1, #1
+  STRB r1, [r0]
+
+  ;Set Timer to be in periodic mode
+  LDRB r1, [r0, #0x004]
+  BFC r1, #0, #2
+  ORR r1, r1, #0x2
+  STRB r1, [r0, #0x004]
+
+  ;Disables timer2 by writing a 0 to bit 1
+  MOV r0, #0x1000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  BFC r1, #0, #1
+  STRB r1, [r0, #0x00C]
+
+
+  ;Set Timer to 32-bit mode
+  LDRB r1, [r0]
+  BFC r1, #0, #3
+  ;ORR r1, r1, #1
+  STRB r1, [r0]
+
+
+  ;Set Timer to be in periodic mode
+  LDRB r1, [r0, #0x004]
+  BFC r1, #0, #2
+  ORR r1, r1, #0x2
+  STRB r1, [r0, #0x004]
+
+  ;for timer1 address
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+
+  ;set initial interrupt period to 1 second
+  ;MOV r1, #0x2400
+  ;MOVT r1, #0x00F4
+  MOV r1, #0xD400
+  MOVT r1, #0x0030
+  STR r1, [r0, #0x028]
+
+
+  ;Enable Timer to interrupt processor
+  LDRB r1, [r0, #0x018]
+  ORR r1, r1, #1
+  STRB r1, [r0, #0x018]
+
+  ;Interrupt Servicing, clears interrupt
+  ;LDRB r1, [r0, #0x024]
+  ;ORR r1, r1, #1
+  ;STRB r1, [r0, #0x024]
+
+  ;Configure processor to allow Timer to interrupt
+  MOV r0, #0xE000
+  MOVT r0, #0xE000
+  LDR r1, [r0, #0x100]
+  ORR r1, r1, #0x80000
+  STR r1, [r0, #0x100]
+
+  ;Interrupt Servicing, clears interrupt
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x024]
+  ORR r1, r1, #1
+  STRB r1, [r0, #0x024]
+
+  ;Enables timer by writing a 1 to bit 0
+  MOV r0, #0x0000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  ORR r1, r1, #1
+  STRB r1, [r0, #0x00C]
+
+  ;Enables timer by writing a 1 to bit 0
+  MOV r0, #0x1000
+  MOVT r0, #0x4003
+  LDRB r1, [r0, #0x00C]
+  ORR r1, r1, #1
+  STRB r1, [r0, #0x00C]
+
+  POP {lr}
+
+  MOV pc, lr
+;---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+.end
